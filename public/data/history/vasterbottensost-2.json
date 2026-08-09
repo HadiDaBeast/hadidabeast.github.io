@@ -1,0 +1,23 @@
+{
+  "product": "Västerbottensost",
+  "entries": [
+    {
+      "store": "Hemköp",
+      "product": "Västerbottensost",
+      "price": 79.95,
+      "unit_price": 177.67,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "City Gross",
+      "product": "Västerbottensost",
+      "price": 89.95,
+      "unit_price": 199.89,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

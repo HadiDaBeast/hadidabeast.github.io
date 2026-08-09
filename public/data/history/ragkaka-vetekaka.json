@@ -1,0 +1,14 @@
+{
+  "product": "Rågkaka, Vetekaka",
+  "entries": [
+    {
+      "store": "City Gross",
+      "product": "Rågkaka, Vetekaka",
+      "price": 19.95,
+      "unit_price": 22.17,
+      "base_unit": "kg",
+      "valid_from": "2026-08-09T22:00:00+0000",
+      "valid_until": "2026-08-16T21:59:59+0000"
+    }
+  ]
+}

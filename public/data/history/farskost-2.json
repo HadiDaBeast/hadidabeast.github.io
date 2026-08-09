@@ -1,0 +1,32 @@
+{
+  "product": "Färskost",
+  "entries": [
+    {
+      "store": "Hemköp",
+      "product": "Färskost",
+      "price": 19.0,
+      "unit_price": 131.03,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "City Gross",
+      "product": "Färskost",
+      "price": 30.0,
+      "unit_price": 200.0,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "Coop X:-TRA",
+      "product": "Färskost",
+      "price": 24.0,
+      "unit_price": 240.0,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

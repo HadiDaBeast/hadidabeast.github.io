@@ -1,0 +1,23 @@
+{
+  "product": "Färgmixade småtomater i ask",
+  "entries": [
+    {
+      "store": "ICA Supermarket",
+      "product": "Färgmixade småtomater i ask",
+      "price": 25.0,
+      "unit_price": 71.43,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "ICA Nära",
+      "product": "Färgmixade småtomater i ask",
+      "price": 25.0,
+      "unit_price": 71.43,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

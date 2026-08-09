@@ -1,0 +1,14 @@
+{
+  "product": "Smördeg, Pajdeg",
+  "entries": [
+    {
+      "store": "ICA Supermarket",
+      "product": "Smördeg, Pajdeg",
+      "price": 35.0,
+      "unit_price": 125.0,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "product": "Pajer",
+  "entries": [
+    {
+      "store": "Hemköp",
+      "product": "Pajer",
+      "price": 31.95,
+      "unit_price": 152.14,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "Hemköp",
+      "product": "Pajer",
+      "price": 44.95,
+      "unit_price": 149.83,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

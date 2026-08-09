@@ -1,0 +1,14 @@
+{
+  "product": "Flytande margarin",
+  "entries": [
+    {
+      "store": "Coop X:-TRA",
+      "product": "Flytande margarin",
+      "price": 15.0,
+      "unit_price": 30.0,
+      "base_unit": "l",
+      "valid_from": "2026-08-09T22:00:00+0000",
+      "valid_until": "2026-08-16T21:59:59+0000"
+    }
+  ]
+}

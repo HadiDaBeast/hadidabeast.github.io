@@ -1,0 +1,1415 @@
+[
+  {
+    "store": "Willys",
+    "product": "BAGUETTE",
+    "price": 12.2,
+    "unit_price": 30.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "BAVARIA BLU",
+    "price": 44.9,
+    "unit_price": 128.29,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "BAVARIA BLU",
+    "price": 45.0,
+    "unit_price": 128.57,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ÖoB",
+    "product": "BLANDADE KEX",
+    "price": 20.0,
+    "unit_price": 200.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ÖoB",
+    "product": "BLEKINGE SKORPAN",
+    "price": 23.6,
+    "unit_price": 59.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "BREGOTT",
+    "price": 37.8,
+    "unit_price": 108.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "BRIE",
+    "price": 34.9,
+    "unit_price": 139.6,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "BUFFALO WINGS",
+    "price": 39.9,
+    "unit_price": 39.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "BUTCHER’S Nötfärs 10%",
+    "price": 109.0,
+    "unit_price": 109.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Baguetter",
+    "price": 25.0,
+    "unit_price": 83.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Bordsmargarin",
+    "price": 15.0,
+    "unit_price": 25.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Bordsmargarin",
+    "price": 26.95,
+    "unit_price": 53.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Bregott",
+    "price": 49.9,
+    "unit_price": 66.53,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Brie, Camembert",
+    "price": 34.95,
+    "unit_price": 174.75,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Brännvinsost",
+    "price": 17.95,
+    "unit_price": 179.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Buffalo Wings",
+    "price": 39.95,
+    "unit_price": 39.95,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Burrata",
+    "price": 29.0,
+    "unit_price": 290.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Burrata, Stracciatella",
+    "price": 25.0,
+    "unit_price": 250.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "CHEF SELECT Filodegssnurra med ost",
+    "price": 39.9,
+    "unit_price": 39.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "CHIPS, RINGAR, OSTBÅGAR",
+    "price": 45.0,
+    "unit_price": 300.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "COCKTAILTOMATER PÅ KVIST 500G",
+    "price": 19.9,
+    "unit_price": 39.8,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Cheez Dippers, Mini Babybel",
+    "price": 45.0,
+    "unit_price": 375.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Chokladpåsar",
+    "price": 36.0,
+    "unit_price": 240.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Cocktailtomater",
+    "price": 20.0,
+    "unit_price": 40.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "EKOLOGISK BREGOTT, LAKTOSFRI BREGOTT",
+    "price": 47.9,
+    "unit_price": 95.8,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "EKOLOGISKA KROSSADE TOMATER",
+    "price": 30.0,
+    "unit_price": 76.92,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Ekologiska bananer",
+    "price": 19.95,
+    "unit_price": 19.95,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Ekologiska tomater",
+    "price": 12.0,
+    "unit_price": 30.77,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Enportionsrätter",
+    "price": 65.0,
+    "unit_price": 185.71,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "FINKROSSADE TOMATER 3-PACK",
+    "price": 24.9,
+    "unit_price": 21.28,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "FRANSK BONDOST",
+    "price": 24.9,
+    "unit_price": 249.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "FRYSTA ENPORTIONSRÄTTER",
+    "price": 100.0,
+    "unit_price": 277.78,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "FRÖ-, FRUKTKUSAR",
+    "price": 48.0,
+    "unit_price": 114.29,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Fantasticatomater",
+    "price": 16.9,
+    "unit_price": 84.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Finkrossade tomater 3-pack",
+    "price": 20.0,
+    "unit_price": 17.09,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-09-06T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Finn Crisp Original",
+    "price": 11.95,
+    "unit_price": 59.75,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Flytande margarin",
+    "price": 15.0,
+    "unit_price": 30.0,
+    "base_unit": "l",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Frysta kycklingdelar",
+    "price": 33.0,
+    "unit_price": 94.29,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "FÄRSK KYCKLINGBRÖSTFILÉ, KYCKLINGLÅRFILÉ",
+    "price": 109.0,
+    "unit_price": 109.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "FÄRSKOST",
+    "price": 19.9,
+    "unit_price": 66.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Färgmixade småtomater i ask",
+    "price": 25.0,
+    "unit_price": 71.43,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Färgmixade småtomater i ask",
+    "price": 25.0,
+    "unit_price": 71.43,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Färsk Kycklinglårfilé",
+    "price": 112.0,
+    "unit_price": 112.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Färsk kycklingsteak",
+    "price": 85.0,
+    "unit_price": 85.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Färska portionsrätter",
+    "price": 100.0,
+    "unit_price": 270.27,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Färskost",
+    "price": 19.0,
+    "unit_price": 131.03,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Färskost",
+    "price": 24.0,
+    "unit_price": 240.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Färskost",
+    "price": 30.0,
+    "unit_price": 200.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "GRILLOST NORRLÄNDSK",
+    "price": 45.0,
+    "unit_price": 250.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Grektiskt lantbröd, Italienskt surdegsbröd",
+    "price": 22.0,
+    "unit_price": 39.29,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Grillade kycklingben 4-pack",
+    "price": 25.0,
+    "unit_price": 25.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Grillkorv",
+    "price": 70.0,
+    "unit_price": 259.26,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "HAMBURGERBRÖD BRIOCHE 4-PACK",
+    "price": 35.0,
+    "unit_price": 175.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "HUSHÅLLSOST",
+    "price": 59.9,
+    "unit_price": 59.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Halloumi",
+    "price": 22.0,
+    "unit_price": 110.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Hamburgare",
+    "price": 79.95,
+    "unit_price": 176.88,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Hamburgerbröd Frisco 4-pack, Korvbröd 8-pack",
+    "price": 20.0,
+    "unit_price": 62.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Herrgård®, Präst®, Grevé®",
+    "price": 89.0,
+    "unit_price": 89.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Hummus",
+    "price": 24.95,
+    "unit_price": 90.73,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Hummus",
+    "price": 25.0,
+    "unit_price": 90.91,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Hushållsost",
+    "price": 69.9,
+    "unit_price": 69.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Hushållsost",
+    "price": 69.95,
+    "unit_price": 69.95,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Högrevsfärs",
+    "price": 189.0,
+    "unit_price": 189.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "JUBILEUMSBRÖD",
+    "price": 22.9,
+    "unit_price": 22.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Jubileumskaka",
+    "price": 15.0,
+    "unit_price": 37.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-05T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Jubileumskaka",
+    "price": 35.0,
+    "unit_price": 87.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "JÄTTEFRANSKA, RASKER",
+    "price": 45.0,
+    "unit_price": 40.91,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "KVIBILLE® Cheddar",
+    "price": 119.0,
+    "unit_price": 119.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "KYCKLINGFÄRS",
+    "price": 59.9,
+    "unit_price": 74.88,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Kaffe",
+    "price": 110.0,
+    "unit_price": 244.44,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Kaffe hela bönor",
+    "price": 79.95,
+    "unit_price": 177.67,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Kaffebönor",
+    "price": 74.95,
+    "unit_price": 166.56,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Kebab, Gyros",
+    "price": 89.0,
+    "unit_price": 323.64,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-30T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Kex crackers",
+    "price": 15.0,
+    "unit_price": 100.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Klassikerost",
+    "price": 69.9,
+    "unit_price": 104.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Korvbröd, Sliders 6-pack",
+    "price": 20.0,
+    "unit_price": 83.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Kvistcocktailtomater",
+    "price": 19.9,
+    "unit_price": 39.8,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Kyckling",
+    "price": 69.9,
+    "unit_price": 107.54,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Kyckling minut",
+    "price": 79.95,
+    "unit_price": 145.36,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Kycklingdelar",
+    "price": 25.0,
+    "unit_price": 25.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Kycklingfilé tunna skivor",
+    "price": 79.95,
+    "unit_price": 148.06,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Kycklingspett",
+    "price": 69.95,
+    "unit_price": 145.73,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "LAKTOSFRI MJÖLK",
+    "price": 36.0,
+    "unit_price": 24.0,
+    "base_unit": "l",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Levainknut",
+    "price": 20.0,
+    "unit_price": 52.63,
+    "base_unit": "kg",
+    "valid_from": "2026-08-12T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Libabröd",
+    "price": 5.0,
+    "unit_price": 15.15,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "MAJSKAKOR",
+    "price": 30.0,
+    "unit_price": 240.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "MATRIKET Skivat pålägg",
+    "price": 14.9,
+    "unit_price": 149.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "MOZZARELLA",
+    "price": 45.0,
+    "unit_price": 450.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Margarin",
+    "price": 19.95,
+    "unit_price": 33.25,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Mariekex",
+    "price": 15.0,
+    "unit_price": 75.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Matbröd",
+    "price": 23.95,
+    "unit_price": 53.22,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Matbröd",
+    "price": 24.95,
+    "unit_price": 49.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Matpaj",
+    "price": 54.0,
+    "unit_price": 257.14,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Miniost",
+    "price": 39.0,
+    "unit_price": 325.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Mjukost",
+    "price": 29.0,
+    "unit_price": 131.82,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Mjukost i tub",
+    "price": 31.95,
+    "unit_price": 138.91,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Mozzarella",
+    "price": 28.0,
+    "unit_price": 224.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-30T21:59:59+0000"
+  },
+  {
+    "store": "ÖoB",
+    "product": "Nescafé!",
+    "price": 25.6,
+    "unit_price": 25.6,
+    "base_unit": "pcs",
+    "valid_from": "2026-08-06T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Norrlands Leväjn",
+    "price": 25.0,
+    "unit_price": 56.82,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Orientaliskt bröd",
+    "price": 25.0,
+    "unit_price": 71.43,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Ostkex",
+    "price": 19.0,
+    "unit_price": 190.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "PICCOLINITOMATER I ASK",
+    "price": 20.0,
+    "unit_price": 100.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "PRÄST®",
+    "price": 99.0,
+    "unit_price": 99.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "PRÄST®, HERRGÅRD®, GREVÉ®, RIKE, ÄRA",
+    "price": 79.9,
+    "unit_price": 119.25,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Pajer",
+    "price": 31.95,
+    "unit_price": 152.14,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Pajer",
+    "price": 44.95,
+    "unit_price": 149.83,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Polarråg, Polarvete",
+    "price": 31.95,
+    "unit_price": 39.94,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Portionsostar",
+    "price": 23.95,
+    "unit_price": 199.58,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Präst, Grevé",
+    "price": 54.0,
+    "unit_price": 135.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Präst, Herrgård, Grevé",
+    "price": 85.0,
+    "unit_price": 85.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Quattrocento",
+    "price": 29.95,
+    "unit_price": 199.67,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Riven ost",
+    "price": 15.0,
+    "unit_price": 100.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Riven ost",
+    "price": 19.95,
+    "unit_price": 133.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Roast'n Toast, Pågenlimpan",
+    "price": 22.0,
+    "unit_price": 27.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Rågbröd 6-pack",
+    "price": 10.0,
+    "unit_price": 33.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Rågbröd, Kavring",
+    "price": 24.95,
+    "unit_price": 49.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Rågkaka, Vetekaka",
+    "price": 19.95,
+    "unit_price": 22.17,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Röror, Sallader",
+    "price": 22.95,
+    "unit_price": 131.14,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "SALLADSKYCKLING",
+    "price": 49.9,
+    "unit_price": 124.75,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Maxi Stormarknad",
+    "product": "SALLADSOST",
+    "price": 30.0,
+    "unit_price": 200.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "SMÅBRÖD",
+    "price": 16.9,
+    "unit_price": 40.24,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "STJÄRNÄGG Ekologiska ägg",
+    "price": 41.9,
+    "unit_price": 2.79,
+    "base_unit": "pcs",
+    "valid_from": "2026-08-12T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Skivad ost",
+    "price": 34.9,
+    "unit_price": 87.25,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Skivad ost",
+    "price": 35.0,
+    "unit_price": 87.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Skogaholmslimpa",
+    "price": 22.0,
+    "unit_price": 28.39,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Smör",
+    "price": 49.0,
+    "unit_price": 98.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Smör- & Rapsolja",
+    "price": 22.0,
+    "unit_price": 44.0,
+    "base_unit": "l",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Smördeg, Pajdeg",
+    "price": 35.0,
+    "unit_price": 125.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Smörgåsmat",
+    "price": 38.0,
+    "unit_price": 422.22,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Smörgåsmat",
+    "price": 42.0,
+    "unit_price": 466.67,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Smörgåspålägg",
+    "price": 15.0,
+    "unit_price": 187.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Snabbkaffe",
+    "price": 69.95,
+    "unit_price": 466.33,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Snabbkaffe",
+    "price": 79.0,
+    "unit_price": 395.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Surdegsfralla",
+    "price": 15.0,
+    "unit_price": 187.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Svensk majskycklingbröstfilé",
+    "price": 129.0,
+    "unit_price": 129.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Svensk nötfärs",
+    "price": 79.95,
+    "unit_price": 159.9,
+    "base_unit": "kg",
+    "valid_from": "2026-08-12T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Svenska kvisttomater",
+    "price": 25.0,
+    "unit_price": 25.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Svenska tomater",
+    "price": 19.95,
+    "unit_price": 19.95,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Svenskt smör",
+    "price": 45.0,
+    "unit_price": 90.0,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Såser",
+    "price": 35.0,
+    "unit_price": 152.17,
+    "base_unit": "l",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Tomatmix i ask",
+    "price": 24.95,
+    "unit_price": 99.8,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Tortillawrap 8-pack",
+    "price": 18.0,
+    "unit_price": 56.25,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Coop X:-TRA",
+    "product": "Tortillawraps",
+    "price": 25.0,
+    "unit_price": 89.29,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Tuc kex",
+    "price": 9.95,
+    "unit_price": 99.5,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "VITASIA Fritters",
+    "price": 34.9,
+    "unit_price": 87.25,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "VITASIA Panerad kyckling",
+    "price": 47.9,
+    "unit_price": 119.75,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "VITASIA Sesampanerad kyckling",
+    "price": 54.9,
+    "unit_price": 109.8,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Lidl",
+    "product": "VITASIA Vårrullar",
+    "price": 29.9,
+    "unit_price": 85.43,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Supermarket",
+    "product": "Varsågod, Skogaholmslimpa",
+    "price": 21.0,
+    "unit_price": 27.1,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Vetekaka 12-pack",
+    "price": 12.0,
+    "unit_price": 26.67,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-09-06T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Vitlöksbaguette",
+    "price": 10.0,
+    "unit_price": 57.14,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Vitlöksbaguetter 2-pack",
+    "price": 15.0,
+    "unit_price": 42.86,
+    "base_unit": "kg",
+    "valid_from": "2026-08-09T22:00:00+0000",
+    "valid_until": "2026-09-06T21:59:59+0000"
+  },
+  {
+    "store": "Willys",
+    "product": "VÄSTERBOTTENSOST",
+    "price": 74.9,
+    "unit_price": 166.44,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Västerbottensost",
+    "price": 79.95,
+    "unit_price": 177.67,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "City Gross",
+    "product": "Västerbottensost",
+    "price": 89.95,
+    "unit_price": 199.89,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "ICA Nära",
+    "product": "Västerbottensost®",
+    "price": 89.0,
+    "unit_price": 197.78,
+    "base_unit": "kg",
+    "valid_from": "2026-08-02T22:00:00+0000",
+    "valid_until": "2026-08-09T21:59:59+0000"
+  },
+  {
+    "store": "Hemköp",
+    "product": "Ägg 10-pack",
+    "price": 20.0,
+    "unit_price": 2.0,
+    "base_unit": "pcs",
+    "valid_from": "2026-08-12T22:00:00+0000",
+    "valid_until": "2026-08-16T21:59:59+0000"
+  }
+]

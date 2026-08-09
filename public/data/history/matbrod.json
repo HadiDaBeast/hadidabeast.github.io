@@ -1,0 +1,23 @@
+{
+  "product": "Matbröd",
+  "entries": [
+    {
+      "store": "City Gross",
+      "product": "Matbröd",
+      "price": 23.95,
+      "unit_price": 53.22,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    },
+    {
+      "store": "City Gross",
+      "product": "Matbröd",
+      "price": 24.95,
+      "unit_price": 49.9,
+      "base_unit": "kg",
+      "valid_from": "2026-08-09T22:00:00+0000",
+      "valid_until": "2026-08-16T21:59:59+0000"
+    }
+  ]
+}

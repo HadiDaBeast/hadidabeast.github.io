@@ -1,0 +1,14 @@
+{
+  "product": "Nescafé!",
+  "entries": [
+    {
+      "store": "ÖoB",
+      "product": "Nescafé!",
+      "price": 25.6,
+      "unit_price": 25.6,
+      "base_unit": "pcs",
+      "valid_from": "2026-08-06T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

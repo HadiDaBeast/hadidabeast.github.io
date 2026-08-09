@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prispulsen</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="ticket">
+        <header>
+            <p class="eyebrow">Karlskrona · 7 butiker</p>
+            <h1>Prispulsen</h1>
+            <div class="header-row">
+                <p class="last-updated">
+                    {% if last_fetch %}
+                        Senast uppdaterad {{ last_fetch }} UTC
+                    {% else %}
+                        Inga priser hämtade än
+                    {% endif %}
+                </p>
+                <form action="{{ url_for('refresh') }}" method="post">
+                    <button type="submit">Uppdatera priser</button>
+                </form>
+            </div>
+        </header>
+
+        <div class="perforation" aria-hidden="true"></div>
+
+        <main>
+            {% if offers %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produkt</th>
+                        <th>Butik</th>
+                        <th class="num">Pris</th>
+                        <th class="num">Jämförpris</th>
+                        <th>Giltigt t.o.m.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in offers %}
+                    <tr>
+                        <td>{{ o['product_name'] }}</td>
+                        <td>{{ o['store_name'] }}</td>
+                        <td class="num">{{ '%.2f'|format(o['price']) if o['price'] is not none else '—' }} kr</td>
+                        <td class="num">
+                            {% if o['unit_price'] %}
+                                {{ '%.2f'|format(o['unit_price']) }} kr/{{ o['base_unit'] or '?' }}
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ o['valid_until'][:10] if o['valid_until'] else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">Inga erbjudanden lagrade än. Klicka på "Uppdatera priser" ovan
+                för att hämta aktuella priser från alla 7 butiker.
+                <br>Detta kan ta cirka en minut.</p>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

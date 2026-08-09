@@ -1,0 +1,14 @@
+{
+  "product": "Såser",
+  "entries": [
+    {
+      "store": "ICA Supermarket",
+      "product": "Såser",
+      "price": 35.0,
+      "unit_price": 152.17,
+      "base_unit": "l",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

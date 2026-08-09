@@ -1,0 +1,14 @@
+{
+  "product": "Smör- & Rapsolja",
+  "entries": [
+    {
+      "store": "Hemköp",
+      "product": "Smör- & Rapsolja",
+      "price": 22.0,
+      "unit_price": 44.0,
+      "base_unit": "l",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

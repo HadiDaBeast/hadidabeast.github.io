@@ -1,0 +1,14 @@
+{
+  "product": "BRIE",
+  "entries": [
+    {
+      "store": "Willys",
+      "product": "BRIE",
+      "price": 34.9,
+      "unit_price": 139.6,
+      "base_unit": "kg",
+      "valid_from": "2026-08-02T22:00:00+0000",
+      "valid_until": "2026-08-09T21:59:59+0000"
+    }
+  ]
+}

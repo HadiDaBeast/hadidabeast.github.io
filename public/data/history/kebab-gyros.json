@@ -1,0 +1,14 @@
+{
+  "product": "Kebab, Gyros",
+  "entries": [
+    {
+      "store": "Hemköp",
+      "product": "Kebab, Gyros",
+      "price": 89.0,
+      "unit_price": 323.64,
+      "base_unit": "kg",
+      "valid_from": "2026-08-09T22:00:00+0000",
+      "valid_until": "2026-08-30T21:59:59+0000"
+    }
+  ]
+}
