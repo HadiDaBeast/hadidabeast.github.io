@@ -1,0 +1,50 @@
+name: Weekly price update
+
+# Monday 06:00 UTC — after stores have published that week's flyers.
+# workflow_dispatch lets you trigger it manually from the Actions tab
+# too, useful for testing without waiting for the schedule.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch: {}
+
+# Needed so this workflow can commit the updated data/db back to the repo.
+permissions:
+  contents: write
+
+# Prevents two runs from overlapping and racing on the same commit if a
+# manual trigger happens to land near the scheduled run.
+concurrency:
+  group: weekly-price-update
+  cancel-in-progress: false
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch latest prices
+        run: python fetch_prices.py
+
+      - name: Export static JSON for the site
+        run: python export.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "prispulsen-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/ prispulsen.db
+          # Skip the commit entirely if nothing actually changed this
+          # week, rather than creating an empty commit.
+          git diff --staged --quiet || git commit -m "Weekly price update ($(date -u +%Y-%m-%d))"
+          git push

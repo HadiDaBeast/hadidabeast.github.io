@@ -24,7 +24,11 @@ from collections import defaultdict
 
 import db
 
-OUTPUT_DIR = Path(__file__).parent / "public" / "data"
+# Repo root's data/ folder — GitHub Pages serves files straight from the
+# repo root with no build step, so this needs to be a path the live site
+# can actually fetch (e.g. https://prispulsen.nu/data/current.json).
+# export.py lives at the repo root itself, so this is just "here".
+OUTPUT_DIR = Path(__file__).parent / "data"
 
 
 def slugify(name, used_slugs):
