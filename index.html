@@ -3,100 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prispulsen</title>
+    <meta name="description" content="Prispulsen – jämför aktuella matpriser i Karlskrona.">
+    <title>Prispulsen — Karlskrona</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="ticket">
-        <header>
-            <p class="eyebrow">Karlskrona · 7 butiker</p>
-            <h1>Prispulsen</h1>
-            <div class="header-row">
-                <p class="last-updated" id="last-updated">Laddar...</p>
+    <div class="app">
+        <header class="hero">
+            <div class="brand">
+                <span class="eyebrow">Karlskrona · matpriser</span>
+                <h1>Prispulsen</h1>
+                <p>Se veckans erbjudanden och hitta det billigaste priset.</p>
+            </div>
+
+            <div class="updated" id="last-updated">
+                <span class="status-dot"></span>
+                Laddar priser...
             </div>
         </header>
 
-        <div class="perforation" aria-hidden="true"></div>
+        <main>
+            <section class="toolbar" aria-label="Filtrera erbjudanden">
+                <div class="search-wrap">
+                    <span class="search-icon">⌕</span>
+                    <input
+                        id="search"
+                        type="search"
+                        placeholder="Sök efter en vara..."
+                        autocomplete="off"
+                    >
+                </div>
 
-        <main id="main-content">
-            <p class="empty">Laddar priser...</p>
+                <select id="store-filter" aria-label="Välj butik">
+                    <option value="">Alla butiker</option>
+                </select>
+
+                <select id="sort" aria-label="Sortera">
+                    <option value="name">Produkt A–Ö</option>
+                    <option value="price">Pris: lägst först</option>
+                    <option value="unit">Jämförpris: lägst först</option>
+                    <option value="store">Butik A–Ö</option>
+                </select>
+            </section>
+
+            <section class="stats" id="stats"></section>
+
+            <section class="offers-section">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Veckans erbjudanden</span>
+                        <h2 id="result-title">Alla aktuella erbjudanden</h2>
+                    </div>
+                    <span class="result-count" id="result-count"></span>
+                </div>
+
+                <div id="offers" class="offers-grid">
+                    <div class="loading">Laddar erbjudanden...</div>
+                </div>
+            </section>
         </main>
+
+        <footer>
+            <span>Prispulsen</span>
+            <span>Priser uppdateras varje vecka</span>
+        </footer>
     </div>
 
     <script>
-        // Static site, no backend — everything comes from the JSON files
-        // export.py writes each week. See project-plan.md for the pipeline.
+        let allOffers = [];
+        let currentOffers = [];
 
-        function formatPrice(n) {
-            return n === null || n === undefined ? null : n.toFixed(2);
+        const els = {
+            search: document.getElementById("search"),
+            store: document.getElementById("store-filter"),
+            sort: document.getElementById("sort"),
+            offers: document.getElementById("offers"),
+            stats: document.getElementById("stats"),
+            count: document.getElementById("result-count"),
+            title: document.getElementById("result-title"),
+            updated: document.getElementById("last-updated")
+        };
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
-        function renderOffers(offers) {
-            const main = document.getElementById("main-content");
+        function money(value) {
+            if (value === null || value === undefined || Number.isNaN(Number(value))) {
+                return "—";
+            }
+            return Number(value).toLocaleString("sv-SE", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + " kr";
+        }
 
-            if (!offers || offers.length === 0) {
-                main.innerHTML = '<p class="empty">Inga erbjudanden just nu.</p>';
+        function dateOnly(value) {
+            if (!value) return "—";
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value.slice(0, 10);
+            return date.toLocaleDateString("sv-SE", {
+                day: "numeric",
+                month: "short"
+            });
+        }
+
+        function storeClass(store) {
+            return "store-" + store
+                .toLowerCase()
+                .replace(/[^a-zåäö0-9]+/gi, "-")
+                .replace(/^-|-$/g, "");
+        }
+
+        function populateStores(offers) {
+            const stores = [...new Set(offers.map(o => o.store).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, "sv"));
+
+            els.store.innerHTML =
+                '<option value="">Alla butiker</option>' +
+                stores.map(store =>
+                    `<option value="${escapeHtml(store)}">${escapeHtml(store)}</option>`
+                ).join("");
+        }
+
+        function getCurrentOffers(offers) {
+            const now = new Date();
+
+            return offers.filter(offer => {
+                if (!offer.valid_from && !offer.valid_until) return true;
+
+                const from = offer.valid_from ? new Date(offer.valid_from) : null;
+                const until = offer.valid_until ? new Date(offer.valid_until) : null;
+
+                if (from && !Number.isNaN(from.getTime()) && from > now) return false;
+                if (until && !Number.isNaN(until.getTime()) && until < now) return false;
+
+                return true;
+            });
+        }
+
+        function renderStats(offers) {
+            const stores = new Set(offers.map(o => o.store)).size;
+            const products = new Set(offers.map(o => o.product)).size;
+
+            const cheapest = offers
+                .map(o => Number(o.price))
+                .filter(Number.isFinite);
+
+            const lowest = cheapest.length ? Math.min(...cheapest) : null;
+
+            els.stats.innerHTML = `
+                <div class="stat">
+                    <strong>${products}</strong>
+                    <span>produkter</span>
+                </div>
+                <div class="stat">
+                    <strong>${stores}</strong>
+                    <span>butiker</span>
+                </div>
+                <div class="stat highlight">
+                    <strong>${lowest !== null ? money(lowest) : "—"}</strong>
+                    <span>lägsta pris</span>
+                </div>
+            `;
+        }
+
+        function renderOffers() {
+            const query = els.search.value.trim().toLocaleLowerCase("sv");
+            const store = els.store.value;
+            const sort = els.sort.value;
+
+            let offers = currentOffers.filter(offer => {
+                const matchesSearch =
+                    !query ||
+                    String(offer.product || "").toLocaleLowerCase("sv").includes(query) ||
+                    String(offer.store || "").toLocaleLowerCase("sv").includes(query);
+
+                const matchesStore = !store || offer.store === store;
+
+                return matchesSearch && matchesStore;
+            });
+
+            offers.sort((a, b) => {
+                if (sort === "price") {
+                    return (Number(a.price) || Infinity) - (Number(b.price) || Infinity);
+                }
+                if (sort === "unit") {
+                    return (Number(a.unit_price) || Infinity) - (Number(b.unit_price) || Infinity);
+                }
+                if (sort === "store") {
+                    return String(a.store).localeCompare(String(b.store), "sv");
+                }
+                return String(a.product).localeCompare(String(b.product), "sv");
+            });
+
+            els.count.textContent = `${offers.length} erbjudanden`;
+
+            if (query || store) {
+                els.title.textContent = "Filtrerade erbjudanden";
+            } else {
+                els.title.textContent = "Alla aktuella erbjudanden";
+            }
+
+            if (!offers.length) {
+                els.offers.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">⌕</div>
+                        <h3>Inga erbjudanden hittades</h3>
+                        <p>Prova ett annat sökord eller välj en annan butik.</p>
+                    </div>
+                `;
                 return;
             }
 
-            const rows = offers.map((o) => {
-                const price = formatPrice(o.price);
-                const unitPrice = formatPrice(o.unit_price);
-                const unitCell = unitPrice
-                    ? `${unitPrice} kr/${o.base_unit || "?"}`
-                    : '<span class="muted">—</span>';
-                const validUntil = o.valid_until ? o.valid_until.slice(0, 10) : "—";
+            els.offers.innerHTML = offers.map(offer => {
+                const unit = offer.base_unit ? `kr/${escapeHtml(offer.base_unit)}` : "";
+                const validUntil = dateOnly(offer.valid_until);
 
-                return `<tr>
-                    <td>${o.product}</td>
-                    <td>${o.store}</td>
-                    <td class="num">${price !== null ? price + " kr" : "—"}</td>
-                    <td class="num">${unitCell}</td>
-                    <td>${validUntil}</td>
-                </tr>`;
+                return `
+                    <article class="offer-card">
+                        <div class="offer-top">
+                            <span class="store-badge ${storeClass(offer.store)}">
+                                ${escapeHtml(offer.store)}
+                            </span>
+                            <span class="valid">t.o.m. ${validUntil}</span>
+                        </div>
+
+                        <div class="product-name">
+                            ${escapeHtml(offer.product)}
+                        </div>
+
+                        <div class="price-row">
+                            <div>
+                                <span class="price">${money(offer.price)}</span>
+                                ${offer.unit_price !== null && offer.unit_price !== undefined
+                                    ? `<span class="comparison"> ${money(offer.unit_price)}/${escapeHtml(offer.base_unit || "")}</span>`
+                                    : ""}
+                            </div>
+                        </div>
+
+                        <div class="offer-footer">
+                            <span>Jämförpris</span>
+                            <strong>
+                                ${offer.unit_price !== null && offer.unit_price !== undefined
+                                    ? `${money(offer.unit_price)} / ${escapeHtml(offer.base_unit || "")}`
+                                    : "—"}
+                            </strong>
+                        </div>
+                    </article>
+                `;
             }).join("");
-
-            main.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produkt</th>
-                            <th>Butik</th>
-                            <th class="num">Pris</th>
-                            <th class="num">Jämförpris</th>
-                            <th>Giltigt t.o.m.</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>`;
         }
 
         async function loadData() {
             try {
+                // export.py writes the static data under public/data/.
                 const [currentRes, metaRes] = await Promise.all([
-                    fetch("data/current.json"),
-                    fetch("data/meta.json"),
+                    fetch("public/data/current.json", { cache: "no-store" }),
+                    fetch("public/data/meta.json", { cache: "no-store" })
                 ]);
 
-                if (!currentRes.ok || !metaRes.ok) {
-                    throw new Error("Data files not found — has the weekly pipeline run yet?");
+                if (!currentRes.ok) {
+                    throw new Error("current.json kunde inte laddas.");
                 }
 
                 const offers = await currentRes.json();
-                const meta = await metaRes.json();
+                const meta = metaRes.ok ? await metaRes.json() : {};
 
-                document.getElementById("last-updated").textContent = meta.last_updated
-                    ? `Senast uppdaterad ${meta.last_updated} UTC`
-                    : "Inga priser hämtade än";
+                allOffers = Array.isArray(offers) ? offers : [];
+                currentOffers = getCurrentOffers(allOffers);
 
-                renderOffers(offers);
-            } catch (err) {
-                document.getElementById("last-updated").textContent = "Kunde inte ladda priser";
-                document.getElementById("main-content").innerHTML =
-                    `<p class="empty">Kunde inte hämta prisdata. (${err.message})</p>`;
-                console.error(err);
+                populateStores(currentOffers);
+                renderStats(currentOffers);
+                renderOffers();
+
+                const updated = meta.last_updated
+                    ? new Date(meta.last_updated)
+                    : null;
+
+                els.updated.innerHTML = `
+                    <span class="status-dot"></span>
+                    ${updated && !Number.isNaN(updated.getTime())
+                        ? `Uppdaterad ${updated.toLocaleDateString("sv-SE")} kl. ${updated.toLocaleTimeString("sv-SE", {hour: "2-digit", minute: "2-digit"})}`
+                        : "Aktuella priser"}
+                `;
+            } catch (error) {
+                console.error(error);
+
+                els.updated.innerHTML =
+                    '<span class="status-dot error"></span> Kunde inte ladda priser';
+
+                els.offers.innerHTML = `
+                    <div class="empty">
+                        <div class="empty-icon">!</div>
+                        <h3>Kunde inte hämta prisdata</h3>
+                        <p>${escapeHtml(error.message)}</p>
+                    </div>
+                `;
             }
         }
+
+        els.search.addEventListener("input", renderOffers);
+        els.store.addEventListener("change", renderOffers);
+        els.sort.addEventListener("change", renderOffers);
 
         loadData();
     </script>
