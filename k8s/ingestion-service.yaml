@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-ingestion
+  namespace: prispulsen
+  labels:
+    app: prispulsen-ingestion
+spec:
+  type: ClusterIP
+  selector:
+    app: prispulsen-ingestion
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP

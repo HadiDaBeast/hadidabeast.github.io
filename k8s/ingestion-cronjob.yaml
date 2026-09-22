@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: prispulsen-weekly-fetch
+  namespace: prispulsen
+  labels:
+    app: prispulsen-ingestion
+    component: cronjob
+spec:
+  schedule: "0 6 * * 1"  # Monday 06:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600  # 1 hour timeout
+      template:
+        metadata:
+          labels:
+            app: prispulsen-ingestion
+            component: cronjob-job
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: prispulsen-ingestion
+          securityContext:
+            runAsUser: 65534
+            runAsNonRoot: true
+          containers:
+            - name: trigger
+              image: curlimages/curl:8.7.1
+              command:
+                - sh
+                - -c
+                - |
+                  echo "Triggering ingestion fetch..."
+                  curl -f -X POST http://prispulsen-ingestion:8000/fetch \
+                    -H 'Content-Type: application/json' \
+                    --max-time 30 \
+                    --retry 2 \
+                    --retry-delay 5 \
+                    -w '\nHTTP %{http_code}\n'
+              resources:
+                requests:
+                  memory: "16Mi"
+                  cpu: "10m"
+                limits:
+                  memory: "32Mi"
+                  cpu: "50m"
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]

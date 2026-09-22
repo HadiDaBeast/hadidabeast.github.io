@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prispulsen-config
+  namespace: prispulsen
+data:
+  POSTGRES_DB: prispulsen
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  TJEK_API_URL: https://api.etilbudsavis.dk/v2
+  LOG_LEVEL: INFO
+  INGESTION_PORT: "8000"
+  API_PORT: "8001"
+  NGINX_PORT: "8080"
+  API_SERVICE_URL: prispulsen-api:8001
