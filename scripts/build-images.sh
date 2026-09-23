@@ -4,7 +4,7 @@
 # Run `chmod +x scripts/*.sh` once to make scripts executable.
 set -euo pipefail
 
-DOCKERHUB_USER="taylorbourne"
+DOCKERHUB_USER="hadidabeast"
 VERSION="${VERSION:-$(git describe --tags --always --dirty 2>/dev/null || echo 'dev')}"
 COMMIT="${COMMIT:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}"
 TAG="${VERSION}-${COMMIT}"

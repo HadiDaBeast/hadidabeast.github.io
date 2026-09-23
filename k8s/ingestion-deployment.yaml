@@ -23,7 +23,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: ingestion
-          image: taylorbourne/prispulsen-ingestion:latest
+          image: hadidabeast/prispulsen-ingestion:latest
           ports:
             - containerPort: 8000
           env:

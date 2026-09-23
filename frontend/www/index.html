@@ -5,145 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Prispulsen – jämför aktuella matpriser i Karlskrona.">
     <title>Prispulsen — Karlskrona</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .card-enter { animation: fadeUp 0.3s ease both; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #16a34a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
+<body class="bg-gray-50 min-h-screen">
 
-<body>
-    <div class="app">
-        <header class="hero">
-            <div class="brand">
-                <span class="eyebrow">Karlskrona · matpriser</span>
-                <h1>Prispulsen</h1>
-                <p>Se veckans erbjudanden och hitta det billigaste priset.</p>
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-brand-600 text-white rounded-lg w-9 h-9 flex items-center justify-center font-bold text-lg">P</div>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-900 leading-tight">Prispulsen</h1>
+                        <p class="text-xs text-gray-500 leading-tight">Karlskrona · matpriser</p>
+                    </div>
+                </div>
+                <div id="last-updated" class="flex items-center gap-2 text-sm text-gray-500">
+                    <span class="inline-block w-2 h-2 rounded-full bg-gray-300 animate-pulse"></span>
+                    Laddar...
+                </div>
             </div>
+        </div>
+    </header>
 
-            <div class="updated" id="last-updated">
-                <span class="status-dot"></span>
-                Laddar priser...
-            </div>
-        </header>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <main>
-            <section class="toolbar" aria-label="Filtrera erbjudanden">
-                <div class="search-wrap">
-                    <span class="search-icon">⌕</span>
+        <!-- Stats bar -->
+        <div id="stats" class="grid grid-cols-3 gap-4 mb-8"></div>
+
+        <!-- Toolbar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
                     <input
                         id="search"
                         type="search"
-                        placeholder="Sök efter en vara..."
+                        placeholder="Sök produkt eller butik..."
                         autocomplete="off"
+                        class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-gray-50"
                     >
                 </div>
-
-                <select id="store-filter" aria-label="Välj butik">
+                <select id="store-filter" aria-label="Välj butik"
+                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 text-gray-700">
                     <option value="">Alla butiker</option>
                 </select>
-
-                <select id="sort" aria-label="Sortera">
+                <select id="sort" aria-label="Sortera"
+                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 text-gray-700">
                     <option value="name">Produkt A–Ö</option>
                     <option value="price">Pris: lägst först</option>
                     <option value="unit">Jämförpris: lägst först</option>
                     <option value="store">Butik A–Ö</option>
                 </select>
-            </section>
+            </div>
+        </div>
 
-            <section class="stats" id="stats"></section>
+        <!-- Results header -->
+        <div class="flex items-center justify-between mb-5">
+            <h2 id="result-title" class="text-lg font-semibold text-gray-900">Alla aktuella erbjudanden</h2>
+            <span id="result-count" class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full"></span>
+        </div>
 
-            <section class="offers-section">
-                <div class="section-heading">
-                    <div>
-                        <span class="eyebrow">Veckans erbjudanden</span>
-                        <h2 id="result-title">Alla aktuella erbjudanden</h2>
-                    </div>
-                    <span class="result-count" id="result-count"></span>
-                </div>
+        <!-- Offers grid -->
+        <div id="offers" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="col-span-full flex flex-col items-center justify-center py-24 gap-4 text-gray-400">
+                <div class="spinner"></div>
+                <p class="text-sm">Laddar erbjudanden...</p>
+            </div>
+        </div>
+    </main>
 
-                <div id="offers" class="offers-grid">
-                    <div class="loading">Laddar erbjudanden...</div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <span>Prispulsen</span>
-            <span>Priser uppdateras varje vecka</span>
-        </footer>
-    </div>
+    <footer class="border-t border-gray-200 mt-16 py-8 text-center text-sm text-gray-400">
+        Prispulsen · Priser uppdateras varje vecka · Karlskrona
+    </footer>
 
     <script>
         let allOffers = [];
         let currentOffers = [];
 
+        const STORE_COLORS = [
+            'bg-violet-100 text-violet-700',
+            'bg-blue-100 text-blue-700',
+            'bg-amber-100 text-amber-700',
+            'bg-rose-100 text-rose-700',
+            'bg-cyan-100 text-cyan-700',
+            'bg-orange-100 text-orange-700',
+            'bg-teal-100 text-teal-700',
+            'bg-pink-100 text-pink-700',
+        ];
+        const storeColorMap = {};
+        let colorIndex = 0;
+
+        function getStoreColor(store) {
+            if (!storeColorMap[store]) {
+                storeColorMap[store] = STORE_COLORS[colorIndex % STORE_COLORS.length];
+                colorIndex++;
+            }
+            return storeColorMap[store];
+        }
+
         const els = {
-            search: document.getElementById("search"),
-            store: document.getElementById("store-filter"),
-            sort: document.getElementById("sort"),
-            offers: document.getElementById("offers"),
-            stats: document.getElementById("stats"),
-            count: document.getElementById("result-count"),
-            title: document.getElementById("result-title"),
-            updated: document.getElementById("last-updated")
+            search: document.getElementById('search'),
+            store: document.getElementById('store-filter'),
+            sort: document.getElementById('sort'),
+            offers: document.getElementById('offers'),
+            stats: document.getElementById('stats'),
+            count: document.getElementById('result-count'),
+            title: document.getElementById('result-title'),
+            updated: document.getElementById('last-updated')
         };
 
         function escapeHtml(value) {
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return String(value ?? '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
         function money(value) {
-            if (value === null || value === undefined || Number.isNaN(Number(value))) {
-                return "—";
-            }
-            return Number(value).toLocaleString("sv-SE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }) + " kr";
+            if (value === null || value === undefined || Number.isNaN(Number(value))) return '—';
+            return Number(value).toLocaleString('sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr';
         }
 
         function dateOnly(value) {
-            if (!value) return "—";
-            const date = new Date(value);
-            if (Number.isNaN(date.getTime())) return value.slice(0, 10);
-            return date.toLocaleDateString("sv-SE", {
-                day: "numeric",
-                month: "short"
-            });
-        }
-
-        function storeClass(store) {
-            return "store-" + store
-                .toLowerCase()
-                .replace(/[^a-zåäö0-9]+/gi, "-")
-                .replace(/^-|-$/g, "");
+            if (!value) return null;
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return value.slice(0, 10);
+            return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
         }
 
         function populateStores(offers) {
-            const stores = [...new Set(offers.map(o => o.store).filter(Boolean))]
-                .sort((a, b) => a.localeCompare(b, "sv"));
-
+            const stores = [...new Set(offers.map(o => o.store).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'sv'));
+            // Pre-assign colors
+            stores.forEach(s => getStoreColor(s));
             els.store.innerHTML =
                 '<option value="">Alla butiker</option>' +
-                stores.map(store =>
-                    `<option value="${escapeHtml(store)}">${escapeHtml(store)}</option>`
-                ).join("");
+                stores.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
         }
 
         function getCurrentOffers(offers) {
             const now = new Date();
-
             return offers.filter(offer => {
                 if (!offer.valid_from && !offer.valid_until) return true;
-
                 const from = offer.valid_from ? new Date(offer.valid_from) : null;
                 const until = offer.valid_until ? new Date(offer.valid_until) : null;
-
                 if (from && !Number.isNaN(from.getTime()) && from > now) return false;
                 if (until && !Number.isNaN(until.getTime()) && until < now) return false;
-
                 return true;
             });
         }
@@ -151,161 +190,133 @@
         function renderStats(offers) {
             const stores = new Set(offers.map(o => o.store)).size;
             const products = new Set(offers.map(o => o.product)).size;
+            const prices = offers.map(o => Number(o.price)).filter(Number.isFinite);
+            const lowest = prices.length ? Math.min(...prices) : null;
 
-            const cheapest = offers
-                .map(o => Number(o.price))
-                .filter(Number.isFinite);
+            const stat = (label, value, sub) => `
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                    <p class="text-sm text-gray-500 mb-1">${label}</p>
+                    <p class="text-2xl font-bold text-gray-900">${value}</p>
+                    ${sub ? `<p class="text-xs text-gray-400 mt-1">${sub}</p>` : ''}
+                </div>`;
 
-            const lowest = cheapest.length ? Math.min(...cheapest) : null;
-
-            els.stats.innerHTML = `
-                <div class="stat">
-                    <strong>${products}</strong>
-                    <span>produkter</span>
-                </div>
-                <div class="stat">
-                    <strong>${stores}</strong>
-                    <span>butiker</span>
-                </div>
-                <div class="stat highlight">
-                    <strong>${lowest !== null ? money(lowest) : "—"}</strong>
-                    <span>lägsta pris</span>
-                </div>
-            `;
+            els.stats.innerHTML =
+                stat('Produkter', products, 'unika varor') +
+                stat('Butiker', stores, 'i Karlskrona') +
+                stat('Lägsta pris', lowest !== null ? money(lowest) : '—', 'denna vecka');
         }
 
         function renderOffers() {
-            const query = els.search.value.trim().toLocaleLowerCase("sv");
+            const query = els.search.value.trim().toLocaleLowerCase('sv');
             const store = els.store.value;
             const sort = els.sort.value;
 
             let offers = currentOffers.filter(offer => {
-                const matchesSearch =
-                    !query ||
-                    String(offer.product || "").toLocaleLowerCase("sv").includes(query) ||
-                    String(offer.store || "").toLocaleLowerCase("sv").includes(query);
-
-                const matchesStore = !store || offer.store === store;
-
-                return matchesSearch && matchesStore;
+                const matchSearch = !query ||
+                    String(offer.product || '').toLocaleLowerCase('sv').includes(query) ||
+                    String(offer.store || '').toLocaleLowerCase('sv').includes(query);
+                const matchStore = !store || offer.store === store;
+                return matchSearch && matchStore;
             });
 
             offers.sort((a, b) => {
-                if (sort === "price") {
-                    return (Number(a.price) || Infinity) - (Number(b.price) || Infinity);
-                }
-                if (sort === "unit") {
-                    return (Number(a.unit_price) || Infinity) - (Number(b.unit_price) || Infinity);
-                }
-                if (sort === "store") {
-                    return String(a.store).localeCompare(String(b.store), "sv");
-                }
-                return String(a.product).localeCompare(String(b.product), "sv");
+                if (sort === 'price') return (Number(a.price) || Infinity) - (Number(b.price) || Infinity);
+                if (sort === 'unit') return (Number(a.unit_price) || Infinity) - (Number(b.unit_price) || Infinity);
+                if (sort === 'store') return String(a.store).localeCompare(String(b.store), 'sv');
+                return String(a.product).localeCompare(String(b.product), 'sv');
             });
 
             els.count.textContent = `${offers.length} erbjudanden`;
-
-            if (query || store) {
-                els.title.textContent = "Filtrerade erbjudanden";
-            } else {
-                els.title.textContent = "Alla aktuella erbjudanden";
-            }
+            els.title.textContent = (query || store) ? 'Filtrerade erbjudanden' : 'Alla aktuella erbjudanden';
 
             if (!offers.length) {
                 els.offers.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">⌕</div>
-                        <h3>Inga erbjudanden hittades</h3>
-                        <p>Prova ett annat sökord eller välj en annan butik.</p>
-                    </div>
-                `;
+                    <div class="col-span-full flex flex-col items-center justify-center py-24 text-gray-400">
+                        <svg class="w-12 h-12 mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <h3 class="text-base font-semibold text-gray-500 mb-1">Inga erbjudanden hittades</h3>
+                        <p class="text-sm">Prova ett annat sökord eller välj en annan butik.</p>
+                    </div>`;
                 return;
             }
 
-            els.offers.innerHTML = offers.map(offer => {
-                const unit = offer.base_unit ? `kr/${escapeHtml(offer.base_unit)}` : "";
+            els.offers.innerHTML = offers.map((offer, i) => {
+                const colorClass = getStoreColor(offer.store);
                 const validUntil = dateOnly(offer.valid_until);
+                const hasUnitPrice = offer.unit_price !== null && offer.unit_price !== undefined;
 
                 return `
-                    <article class="offer-card">
-                        <div class="offer-top">
-                            <span class="store-badge ${storeClass(offer.store)}">
-                                ${escapeHtml(offer.store)}
-                            </span>
-                            <span class="valid">t.o.m. ${validUntil}</span>
-                        </div>
+                <article class="card-enter bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col"
+                         style="animation-delay: ${Math.min(i * 20, 300)}ms">
 
-                        <div class="product-name">
+                    <!-- Card top: store + date -->
+                    <div class="flex items-center justify-between px-4 pt-4 pb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
+                            ${escapeHtml(offer.store)}
+                        </span>
+                        ${validUntil
+                            ? `<span class="text-xs text-gray-400">t.o.m. ${escapeHtml(validUntil)}</span>`
+                            : ''}
+                    </div>
+
+                    <!-- Product name -->
+                    <div class="px-4 pb-3 flex-1">
+                        <h3 class="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">
                             ${escapeHtml(offer.product)}
-                        </div>
+                        </h3>
+                    </div>
 
-                        <div class="price-row">
+                    <!-- Price area -->
+                    <div class="bg-gray-50 border-t border-gray-100 px-4 py-3 mt-auto">
+                        <div class="flex items-end justify-between">
                             <div>
-                                <span class="price">${money(offer.price)}</span>
-                                ${offer.unit_price !== null && offer.unit_price !== undefined
-                                    ? `<span class="comparison"> ${money(offer.unit_price)}/${escapeHtml(offer.base_unit || "")}</span>`
-                                    : ""}
+                                <span class="text-2xl font-bold text-gray-900">${money(offer.price)}</span>
                             </div>
+                            ${hasUnitPrice
+                                ? `<span class="text-xs text-gray-400 mb-1">${money(offer.unit_price)} / ${escapeHtml(offer.base_unit || '')}</span>`
+                                : ''}
                         </div>
-
-                        <div class="offer-footer">
-                            <span>Jämförpris</span>
-                            <strong>
-                                ${offer.unit_price !== null && offer.unit_price !== undefined
-                                    ? `${money(offer.unit_price)} / ${escapeHtml(offer.base_unit || "")}`
-                                    : "—"}
-                            </strong>
-                        </div>
-                    </article>
-                `;
-            }).join("");
+                    </div>
+                </article>`;
+            }).join('');
         }
 
         async function loadData() {
             try {
-                // Fetch products from the api-service; returns {items, total, page, page_size}
-                const currentRes = await fetch("/api/products?page_size=200", { cache: "no-store" });
+                const res = await fetch('/api/products?page_size=200', { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-                if (!currentRes.ok) {
-                    throw new Error("Produktdata kunde inte laddas.");
-                }
-
-                const response = await currentRes.json();
-                // API returns paginated envelope: { items: [...], total, page, page_size }
-                const offers = Array.isArray(response.items) ? response.items : [];
-
-                allOffers = offers;
+                const data = await res.json();
+                allOffers = Array.isArray(data.items) ? data.items : [];
                 currentOffers = getCurrentOffers(allOffers);
 
                 populateStores(currentOffers);
                 renderStats(currentOffers);
                 renderOffers();
 
-                // Show a static "loaded" timestamp since the healthz endpoint
-                // doesn't expose last_updated; the data is always fresh from the DB.
                 els.updated.innerHTML = `
-                    <span class="status-dot"></span>
-                    Laddad just nu
-                `;
-            } catch (error) {
-                console.error(error);
-
-                els.updated.innerHTML =
-                    '<span class="status-dot error"></span> Kunde inte ladda priser';
-
+                    <span class="inline-block w-2 h-2 rounded-full bg-brand-500"></span>
+                    <span>Uppdaterad just nu</span>`;
+            } catch (err) {
+                console.error(err);
+                els.updated.innerHTML = `
+                    <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>
+                    <span class="text-red-500">Kunde inte ladda priser</span>`;
                 els.offers.innerHTML = `
-                    <div class="empty">
-                        <div class="empty-icon">!</div>
-                        <h3>Kunde inte hämta prisdata</h3>
-                        <p>${escapeHtml(error.message)}</p>
-                    </div>
-                `;
+                    <div class="col-span-full flex flex-col items-center justify-center py-24 text-gray-400">
+                        <svg class="w-12 h-12 mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        </svg>
+                        <h3 class="text-base font-semibold text-gray-500 mb-1">Kunde inte hämta prisdata</h3>
+                        <p class="text-sm">${escapeHtml(err.message)}</p>
+                    </div>`;
             }
         }
 
-        els.search.addEventListener("input", renderOffers);
-        els.store.addEventListener("change", renderOffers);
-        els.sort.addEventListener("change", renderOffers);
+        els.search.addEventListener('input', renderOffers);
+        els.store.addEventListener('change', renderOffers);
+        els.sort.addEventListener('change', renderOffers);
 
         loadData();
     </script>

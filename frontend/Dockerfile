@@ -3,7 +3,7 @@ FROM nginx:1.27-alpine
 # Remove default nginx config
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# Copy nginx config template
+# Copy nginx config directly (no envsubst needed — values are hardcoded)
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy static files

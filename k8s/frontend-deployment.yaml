@@ -23,7 +23,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: frontend
-          image: taylorbourne/prispulsen-frontend:latest
+          image: hadidabeast/prispulsen-frontend:latest
           ports:
             - containerPort: 8080
           env:

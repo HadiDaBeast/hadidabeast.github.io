@@ -35,7 +35,7 @@ kubectl rollout status statefulset/postgres -n prispulsen --timeout=120s
 
 # 5. Run migrations
 log "Running database migrations..."
-kubectl run migrate --image=taylorbourne/prispulsen-ingestion:latest \
+kubectl run migrate --image=hadidabeast/prispulsen-ingestion:latest \
   --restart=Never --namespace=prispulsen \
   --env="DATABASE_URL=$(kubectl get secret prispulsen-secrets -n prispulsen -o jsonpath='{.data.DATABASE_URL}' | base64 -d)" \
   --command -- python /app/migrations/run_migrations.py 2>/dev/null || true
