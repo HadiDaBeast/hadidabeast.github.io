@@ -8,7 +8,7 @@ microservices architecture.
 
 ## D01 — Container Registry
 
-**Decision:** Docker Hub, username `taylorbourne`  
+**Decision:** Docker Hub, username `hadidabeast`  
 **Date:** 2026-09-22  
 **Status:** Accepted
 

@@ -58,5 +58,5 @@ jobs:
           push: true
           build-args: APP_VERSION=${{ steps.tag.outputs.tag }}
           tags: |
-            taylorbourne/prispulsen-${{ matrix.service }}:${{ steps.tag.outputs.tag }}
-            taylorbourne/prispulsen-${{ matrix.service }}:latest
+            hadidabeast/prispulsen-${{ matrix.service }}:${{ steps.tag.outputs.tag }}
+            hadidabeast/prispulsen-${{ matrix.service }}:latest
