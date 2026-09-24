@@ -1,29 +1,28 @@
 let allOffers = [];
 let currentOffers = [];
-let activeCategory = '';  // '' = all
+let activeCategory = '';
 
-// Swedish display names for categories
 const CATEGORY_LABELS = {
-    'kyckling':     'Kyckling',
-    'ost':          'Ost',
-    'tomater':      'Tomater',
-    'bröd':         'Bröd',
-    'kaffe':        'Kaffe',
-    'smör':         'Smör',
-    'pasta':        'Pasta',
-    'ris':          'Ris',
-    'ägg':          'Ägg',
-    'korv':         'Korv',
+    'kyckling': 'Kyckling',
+    'ost': 'Ost',
+    'tomater': 'Tomater',
+    'bröd': 'Bröd',
+    'kaffe': 'Kaffe',
+    'smör': 'Smör',
+    'pasta': 'Pasta',
+    'ris': 'Ris',
+    'ägg': 'Ägg',
+    'korv': 'Korv',
     'chips_snacks': 'Chips & Snacks',
-    'glass':        'Glass',
-    'pizza':        'Pizza',
-    'nötfärs':      'Nötfärs',
-    'bananer':      'Bananer',
-    'mjölk':        'Mjölk',
-    'grädde':       'Grädde',
-    'fläsk':        'Fläsk',
-    'lax':          'Lax',
-    'räkor':        'Räkor',
+    'glass': 'Glass',
+    'pizza': 'Pizza',
+    'nötfärs': 'Nötfärs',
+    'bananer': 'Bananer',
+    'mjölk': 'Mjölk',
+    'grädde': 'Grädde',
+    'fläsk': 'Fläsk',
+    'lax': 'Lax',
+    'räkor': 'Räkor',
 };
 
 const STORE_COLORS = [
@@ -60,32 +59,28 @@ const els = {
 };
 
 async function loadCategories() {
-    try {
-        const res = await fetch('/api/categories', { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        const cats = Array.isArray(data) ? data.map(c => c.category) : [];
+    const res = await fetch('/api/categories', { cache: 'no-store' });
+    const data = await res.json();
+    const cats = Array.isArray(data) ? data.map(c => c.category) : [];
 
-        cats.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.dataset.category = cat;
-            btn.className = 'category-pill flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 bg-white border border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600';
-            btn.textContent = CATEGORY_LABELS[cat] || cat;
-            els.pills.appendChild(btn);
-        });
+    cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.dataset.category = cat;
+        btn.className = 'category-pill flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 bg-white border border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600';
+        btn.textContent = CATEGORY_LABELS[cat] || cat;
+        els.pills.appendChild(btn);
+    });
 
-        els.pills.addEventListener('click', e => {
-            const btn = e.target.closest('.category-pill');
-            if (!btn) return;
-            selectCategory(btn.dataset.category);
-        });
-    } catch (_) { /* categories are optional — fail silently */ }
+    els.pills.addEventListener('click', e => {
+        const btn = e.target.closest('.category-pill');
+        if (!btn) return;
+        selectCategory(btn.dataset.category);
+    });
 }
 
 async function selectCategory(category) {
     activeCategory = category;
 
-    // Update pill styles
     els.pills.querySelectorAll('.category-pill').forEach(btn => {
         const active = btn.dataset.category === category;
         btn.className = active
@@ -93,12 +88,10 @@ async function selectCategory(category) {
             : 'category-pill flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 bg-white border border-gray-200 text-gray-600 hover:border-brand-500 hover:text-brand-600';
     });
 
-    // Reset store filter and search when switching categories
     els.search.value = '';
     els.store.value = '';
 
     if (!category) {
-        // "Alla" — use already-loaded allOffers
         currentOffers = getCurrentOffers(allOffers);
         populateStores(currentOffers);
         renderStats(currentOffers);
@@ -106,47 +99,30 @@ async function selectCategory(category) {
         return;
     }
 
-    // Fetch category-specific offers
     els.offers.innerHTML = `
         <div class="col-span-full flex flex-col items-center justify-center py-24 gap-4 text-gray-400">
             <div class="spinner"></div>
-            <p class="text-sm">Laddar ${escapeHtml(CATEGORY_LABELS[category] || category)}...</p>
+            <p class="text-sm">Laddar ${CATEGORY_LABELS[category] || category}...</p>
         </div>`;
 
-    try {
-        const res = await fetch(`/api/categories/${encodeURIComponent(category)}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+    const res = await fetch(`/api/categories/${encodeURIComponent(category)}`, { cache: 'no-store' });
+    const data = await res.json();
 
-        // Remap to the same shape as /products items
-        currentOffers = (data.items || []).map(item => ({
-            store: item.store,
-            product: item.product,
-            price: item.price,
-            unit_price: item.unit_price,
-            base_unit: item.base_unit,
-            valid_from: item.valid_from,
-            valid_until: item.valid_until,
-            category: category,
-        }));
+    currentOffers = (data.items || []).map(item => ({
+        store: item.store,
+        product: item.product,
+        price: item.price,
+        unit_price: item.unit_price,
+        base_unit: item.base_unit,
+        valid_from: item.valid_from,
+        valid_until: item.valid_until,
+        category: category,
+    }));
 
-        populateStores(currentOffers);
-        renderStats(currentOffers);
-        els.title.textContent = CATEGORY_LABELS[category] || category;
-        renderOffers();
-    } catch (err) {
-        els.offers.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center py-24 text-gray-400">
-                <h3 class="text-base font-semibold text-gray-500 mb-1">Kunde inte ladda kategorin</h3>
-                <p class="text-sm">${escapeHtml(err.message)}</p>
-            </div>`;
-    }
-}
-
-function escapeHtml(value) {
-    return String(value ?? '')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    populateStores(currentOffers);
+    renderStats(currentOffers);
+    els.title.textContent = CATEGORY_LABELS[category] || category;
+    renderOffers();
 }
 
 function money(value) {
@@ -163,11 +139,10 @@ function dateOnly(value) {
 
 function populateStores(offers) {
     const stores = [...new Set(offers.map(o => o.store).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'sv'));
-    // Pre-assign colors
     stores.forEach(s => getStoreColor(s));
     els.store.innerHTML =
         '<option value="">Alla butiker</option>' +
-        stores.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+        stores.map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
 function getCurrentOffers(offers) {
@@ -245,36 +220,24 @@ function renderOffers() {
         return `
         <article class="card-enter bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col"
                  style="animation-delay: ${Math.min(i * 20, 300)}ms">
-
-            <!-- Card top: store + date -->
             <div class="flex items-center justify-between px-4 pt-4 pb-3">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}">
-                    ${escapeHtml(offer.store)}
+                    ${offer.store}
                 </span>
-                ${validUntil
-                    ? `<span class="text-xs text-gray-400">t.o.m. ${escapeHtml(validUntil)}</span>`
-                    : ''}
+                ${validUntil ? `<span class="text-xs text-gray-400">t.o.m. ${validUntil}</span>` : ''}
             </div>
-
-            <!-- Product name -->
             <div class="px-4 pb-3 flex-1">
                 <h3 class="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">
-                    ${escapeHtml(offer.product)}
+                    ${offer.product}
                 </h3>
-                ${catLabel && activeCategory === ''
-                    ? `<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-xs bg-brand-50 text-brand-700 font-medium">${escapeHtml(catLabel)}</span>`
-                    : ''}
+                ${catLabel && activeCategory === '' ? `<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-xs bg-brand-50 text-brand-700 font-medium">${catLabel}</span>` : ''}
             </div>
-
-            <!-- Price area -->
             <div class="bg-gray-50 border-t border-gray-100 px-4 py-3 mt-auto">
                 <div class="flex items-end justify-between">
                     <div>
                         <span class="text-2xl font-bold text-gray-900">${money(offer.price)}</span>
                     </div>
-                    ${hasUnitPrice
-                        ? `<span class="text-xs text-gray-400 mb-1">${money(offer.unit_price)} / ${escapeHtml(offer.base_unit || '')}</span>`
-                        : ''}
+                    ${hasUnitPrice ? `<span class="text-xs text-gray-400 mb-1">${money(offer.unit_price)} / ${offer.base_unit || ''}</span>` : ''}
                 </div>
             </div>
         </article>`;
@@ -282,35 +245,18 @@ function renderOffers() {
 }
 
 async function loadData() {
-    try {
-        const res = await fetch('/api/products?page_size=200', { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch('/api/products?page_size=200', { cache: 'no-store' });
+    const data = await res.json();
+    allOffers = Array.isArray(data.items) ? data.items : [];
+    currentOffers = getCurrentOffers(allOffers);
 
-        const data = await res.json();
-        allOffers = Array.isArray(data.items) ? data.items : [];
-        currentOffers = getCurrentOffers(allOffers);
+    populateStores(currentOffers);
+    renderStats(currentOffers);
+    renderOffers();
 
-        populateStores(currentOffers);
-        renderStats(currentOffers);
-        renderOffers();
-
-        els.updated.innerHTML = `
-            <span class="inline-block w-2 h-2 rounded-full bg-brand-500"></span>
-            <span>Uppdaterad just nu</span>`;
-    } catch (err) {
-        console.error(err);
-        els.updated.innerHTML = `
-            <span class="inline-block w-2 h-2 rounded-full bg-red-400"></span>
-            <span class="text-red-500">Kunde inte ladda priser</span>`;
-        els.offers.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center py-24 text-gray-400">
-                <svg class="w-12 h-12 mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                </svg>
-                <h3 class="text-base font-semibold text-gray-500 mb-1">Kunde inte hämta prisdata</h3>
-                <p class="text-sm">${escapeHtml(err.message)}</p>
-            </div>`;
-    }
+    els.updated.innerHTML = `
+        <span class="inline-block w-2 h-2 rounded-full bg-brand-500"></span>
+        <span>Uppdaterad just nu</span>`;
 }
 
 els.search.addEventListener('input', renderOffers);

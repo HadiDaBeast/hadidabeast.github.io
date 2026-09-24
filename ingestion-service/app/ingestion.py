@@ -18,11 +18,6 @@ STORES = {
     "Coop X:-tra": (56.2169643, 15.6422651),
 }
 
-QUERIES = [
-    "mjölk", "ägg", "bröd", "tomat", "kyckling",
-    "ost", "smör", "kaffe", "bananer", "nötfärs",
-]
-
 RADIUS_METERS = "3000"
 MAX_WORKERS = 5
 
@@ -93,6 +88,8 @@ def run_ingestion(api_url, run_id):
     fetched_at = datetime.now(timezone.utc).isoformat()
     categories = db.load_categories()
 
+    queries = [category for category, _keywords in categories]
+
     seen_offer_ids: set = set()
     seen_content_keys: set = set()
     lock = threading.Lock()
@@ -103,7 +100,7 @@ def run_ingestion(api_url, run_id):
     tasks = [
         (store_name, lat, lng, query)
         for store_name, (lat, lng) in STORES.items()
-        for query in QUERIES
+        for query in queries
     ]
 
     def run_task(store_name, lat, lng, query):
@@ -148,7 +145,7 @@ def run_ingestion(api_url, run_id):
                         category=category,
                     )
                     stored_this_task += 1
-                except Exception:  # noqa: BLE001
+                except Exception:
                     errors += 1
 
         return stored_this_task
@@ -160,7 +157,7 @@ def run_ingestion(api_url, run_id):
                 count = future.result()
                 with lock:
                     offers_stored += count
-            except Exception:  # noqa: BLE001
+            except Exception:
                 with lock:
                     errors += 1
 

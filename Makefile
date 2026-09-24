@@ -1,7 +1,6 @@
 DOCKER_USER   ?= hadidabeast
 INGESTION_IMG  = $(DOCKER_USER)/prispulsen-ingestion:latest
 API_IMG        = $(DOCKER_USER)/prispulsen-api:latest
-FRONTEND_IMG   = $(DOCKER_USER)/prispulsen-frontend:latest
 NAMESPACE      = prispulsen
 
 .PHONY: help install-docker install-minikube install-kubectl \
@@ -25,8 +24,8 @@ help:
 	@echo "    make install             Install all of the above"
 	@echo ""
 	@echo "  Images"
-	@echo "    make build               Build all 3 Docker images"
-	@echo "    make push                Push all 3 images to Docker Hub"
+	@echo "    make build               Build ingestion and API Docker images"
+	@echo "    make push                Push ingestion and API images to Docker Hub"
 	@echo ""
 	@echo "  Cluster"
 	@echo "    make cluster-start       Start minikube + enable ingress addon"
@@ -109,14 +108,11 @@ build:
 	docker build -t $(INGESTION_IMG) -f ingestion-service/Dockerfile .
 	@echo "==> Building api-service..."
 	docker build -t $(API_IMG) -f api-service/Dockerfile api-service/
-	@echo "==> Building frontend..."
-	docker build -t $(FRONTEND_IMG) frontend/
 	@echo "==> All images built."
 
 push:
 	docker push $(INGESTION_IMG)
 	docker push $(API_IMG)
-	docker push $(FRONTEND_IMG)
 	@echo "==> All images pushed."
 
 # ---------------------------------------------------------------------------
@@ -133,7 +129,6 @@ up:
 	@echo "==> Waiting for deployments..."
 	kubectl rollout status deployment/prispulsen-ingestion -n $(NAMESPACE) --timeout=120s
 	kubectl rollout status deployment/prispulsen-api -n $(NAMESPACE) --timeout=120s
-	kubectl rollout status deployment/prispulsen-frontend -n $(NAMESPACE) --timeout=120s
 	@echo "==> Stack is up. Run 'make open' to access the app."
 
 down:
@@ -142,7 +137,6 @@ down:
 restart:
 	kubectl rollout restart deployment/prispulsen-ingestion -n $(NAMESPACE)
 	kubectl rollout restart deployment/prispulsen-api -n $(NAMESPACE)
-	kubectl rollout restart deployment/prispulsen-frontend -n $(NAMESPACE)
 
 wipe: down
 	@echo "==> Waiting for namespace to be fully deleted..."
@@ -172,16 +166,15 @@ ingestion-status:
 		python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/fetch/status').read().decode())"
 
 open:
-	@echo "==> Forwarding frontend to http://localhost:8080 (Ctrl+C to stop)"
-	kubectl port-forward svc/prispulsen-frontend 8080:8080 -n $(NAMESPACE)
+	@echo "==> Forwarding to http://localhost:8001 (Ctrl+C to stop)"
+	kubectl port-forward svc/prispulsen-api 8001:8001 -n $(NAMESPACE)
 
 start: up ingestion open
 
 logs:
 	@echo "==> Streaming logs (Ctrl+C to stop)..."
 	kubectl logs -n $(NAMESPACE) -l app=prispulsen-api --tail=50 -f &
-	kubectl logs -n $(NAMESPACE) -l app=prispulsen-ingestion --tail=50 -f &
-	kubectl logs -n $(NAMESPACE) -l app=prispulsen-frontend --tail=20 -f
+	kubectl logs -n $(NAMESPACE) -l app=prispulsen-ingestion --tail=50 -f
 
 status:
 	kubectl get pods,svc,hpa -n $(NAMESPACE)

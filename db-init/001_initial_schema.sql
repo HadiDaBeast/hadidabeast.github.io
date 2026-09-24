@@ -1,6 +1,3 @@
--- Version 1: initial schema
--- Ports from SQLite price_history table, adds stores/ingestion_runs tables
-
 CREATE TABLE IF NOT EXISTS schema_version (
     version INTEGER PRIMARY KEY,
     applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -37,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_ph_valid_from ON price_history(valid_from);
 
 CREATE TABLE IF NOT EXISTS ingestion_runs (
     id BIGSERIAL PRIMARY KEY,
-    status TEXT NOT NULL DEFAULT 'queued', -- queued, running, succeeded, failed
+    status TEXT NOT NULL DEFAULT 'queued', 
     started_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
     offers_stored INTEGER,

@@ -3,7 +3,6 @@ import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-import psycopg2
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -26,10 +25,6 @@ WILLYS_API_URL = os.environ.get(
     "https://api.etilbudsavis.dk/v2/offers",
 )
 
-# ---------------------------------------------------------------------------
-# Job state
-# ---------------------------------------------------------------------------
-
 @dataclass
 class JobState:
     run_id: int
@@ -51,41 +46,16 @@ class JobState:
 
 
 current_job = None
-job_lock = threading.Lock()
-
-# ---------------------------------------------------------------------------
-# Background worker
-# ---------------------------------------------------------------------------
-
-ADVISORY_LOCK_KEY = 42
 
 
 def _background_worker(run_id):
-    global current_job  # noqa: PLW0603
+    global current_job
 
     db.mark_ingestion_run_started(run_id)
 
-    with job_lock:
-        if current_job:
-            current_job.status = "running"
-            current_job.started_at = datetime.now(timezone.utc).isoformat()
-
-    lock_conn = psycopg2.connect(os.environ["DATABASE_URL"])
-    lock_conn.autocommit = True
-    with lock_conn.cursor() as cur:
-        cur.execute("SELECT pg_try_advisory_lock(%s)", (ADVISORY_LOCK_KEY,))
-        lock_acquired = cur.fetchone()[0]
-
-    if not lock_acquired:
-        msg = "Another ingestion is already running"
-        db.mark_ingestion_run_failed(run_id, msg)
-        lock_conn.close()
-        with job_lock:
-            if current_job and current_job.run_id == run_id:
-                current_job.status = "failed"
-                current_job.completed_at = datetime.now(timezone.utc).isoformat()
-                current_job.error = msg
-        return
+    if current_job:
+        current_job.status = "running"
+        current_job.started_at = datetime.now(timezone.utc).isoformat()
 
     total_stored = 0
     all_errors = 0
@@ -98,24 +68,15 @@ def _background_worker(run_id):
     total_stored += w_result.get("offers_stored", 0)
     all_errors += w_result.get("errors", 0)
 
-    with lock_conn.cursor() as cur:
-        cur.execute("SELECT pg_advisory_unlock(%s)", (ADVISORY_LOCK_KEY,))
-    lock_conn.close()
-
     completed_at = datetime.now(timezone.utc).isoformat()
     db.mark_ingestion_run_succeeded(run_id, total_stored)
 
-    with job_lock:
-        if current_job and current_job.run_id == run_id:
-            current_job.status = "succeeded"
-            current_job.completed_at = completed_at
-            current_job.offers_stored = total_stored
-            current_job.error = f"{all_errors} error(s) during ingestion" if all_errors else None
+    if current_job and current_job.run_id == run_id:
+        current_job.status = "succeeded"
+        current_job.completed_at = completed_at
+        current_job.offers_stored = total_stored
+        current_job.error = f"{all_errors} error(s) during ingestion" if all_errors else None
 
-
-# ---------------------------------------------------------------------------
-# Application
-# ---------------------------------------------------------------------------
 
 app = FastAPI(title="ingestion-service", version=APP_VERSION)
 
@@ -127,21 +88,10 @@ def healthz():
 
 @app.post("/fetch", status_code=202)
 def trigger_fetch():
-    global current_job  # noqa: PLW0603
+    global current_job
 
-    with job_lock:
-        if current_job is not None and current_job.status == "running":
-            return JSONResponse(
-                status_code=409,
-                content={
-                    "error": "A job is already running",
-                    "run_id": current_job.run_id,
-                    "status": current_job.status,
-                },
-            )
-
-        run_id = db.create_ingestion_run()
-        current_job = JobState(run_id=run_id, status="queued")
+    run_id = db.create_ingestion_run()
+    current_job = JobState(run_id=run_id, status="queued")
 
     thread = threading.Thread(
         target=_background_worker,
@@ -156,10 +106,9 @@ def trigger_fetch():
 
 @app.get("/fetch/status")
 def fetch_status():
-    with job_lock:
-        if current_job is None:
-            return {"status": "idle"}
-        return current_job.to_dict()
+    if current_job is None:
+        return {"status": "idle"}
+    return current_job.to_dict()
 
 
 if __name__ == "__main__":

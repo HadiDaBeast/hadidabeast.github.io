@@ -150,7 +150,7 @@ def run_willys_ingestion(api_url, run_id):
                     category=category,
                 )
                 total_stored += 1
-            except Exception:  # noqa: BLE001
+            except Exception:
                 errors += 1
 
         if len(raw_offers) < PAGE_SIZE:
