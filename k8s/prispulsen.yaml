@@ -1,18 +1,4 @@
-# Prispulsen — full Kubernetes deployment
-# Apply with: kubectl apply -f k8s/prispulsen.yaml
-#
-# Resources (in order):
-#   1. Namespace
-#   2. ConfigMap + Secret
-#   3. PostgreSQL (StatefulSet + Service)
-#   4. DB Migration Job
-#   5. ingestion-service (Deployment + Service + HPA)
-#   6. api-service (Deployment + Service + HPA)
-#   7. Ingress
 
-# ===========================================================================
-# 1. Namespace
-# ===========================================================================
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -21,9 +7,7 @@ metadata:
     app.kubernetes.io/name: prispulsen
 
 ---
-# ===========================================================================
-# 2. ConfigMap
-# ===========================================================================
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -38,9 +22,7 @@ data:
   API_PORT: "8001"
 
 ---
-# ===========================================================================
-# 2. Secret
-# ===========================================================================
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -53,9 +35,7 @@ stringData:
   DATABASE_URL: postgresql://prispulsen:mysecretpassword@postgres:5432/prispulsen
 
 ---
-# ===========================================================================
-# 3. PostgreSQL — StatefulSet
-# ===========================================================================
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -135,9 +115,7 @@ spec:
             storage: 5Gi
 
 ---
-# ===========================================================================
-# 3. PostgreSQL — Service
-# ===========================================================================
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -155,9 +133,7 @@ spec:
       protocol: TCP
 
 ---
-# ===========================================================================
-# 4. DB Migration Job
-# ===========================================================================
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -211,9 +187,7 @@ spec:
               cpu: "200m"
 
 ---
-# ===========================================================================
-# 5. ingestion-service — Deployment
-# ===========================================================================
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -272,9 +246,7 @@ spec:
             periodSeconds: 30
 
 ---
-# ===========================================================================
-# 5. ingestion-service — Service
-# ===========================================================================
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -292,9 +264,7 @@ spec:
       protocol: TCP
 
 ---
-# ===========================================================================
-# 5. ingestion-service — HPA
-# ===========================================================================
+
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -316,9 +286,7 @@ spec:
           averageUtilization: 70
 
 ---
-# ===========================================================================
-# 6. api-service — Deployment
-# ===========================================================================
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -372,9 +340,7 @@ spec:
             periodSeconds: 30
 
 ---
-# ===========================================================================
-# 6. api-service — Service
-# ===========================================================================
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -392,9 +358,7 @@ spec:
       protocol: TCP
 
 ---
-# ===========================================================================
-# 6. api-service — HPA
-# ===========================================================================
+
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -416,9 +380,7 @@ spec:
           averageUtilization: 60
 
 ---
-# ===========================================================================
-# 7. Ingress
-# ===========================================================================
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
