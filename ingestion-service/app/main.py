@@ -1,18 +1,3 @@
-"""
-ingestion-service — FastAPI application entry point.
-
-Endpoints
----------
-POST  /fetch         Trigger a new ingestion run (returns 202 or 409)
-GET   /fetch/status  Return current/last job state
-GET   /healthz       Health check
-
-Advisory lock: before writing any offer rows the background thread acquires
-pg_try_advisory_lock(42) so that multiple replicas cannot run ingestion
-simultaneously.
-"""
-
-import logging
 import os
 import threading
 from dataclasses import dataclass
@@ -28,13 +13,8 @@ from app import db
 from app.ingestion import run_ingestion
 from app.willys import run_willys_ingestion
 
-# ---------------------------------------------------------------------------
-# Bootstrap
-# ---------------------------------------------------------------------------
-
 load_dotenv()
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
 INGESTION_PORT = int(os.environ.get("INGESTION_PORT", "8000"))
 ETILBUDSAVIS_API_URL = os.environ.get(
@@ -46,16 +26,9 @@ WILLYS_API_URL = os.environ.get(
     "https://api.etilbudsavis.dk/v2/offers",
 )
 
-logging.basicConfig(
-    level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
-
 # ---------------------------------------------------------------------------
 # Job state
 # ---------------------------------------------------------------------------
-
 
 @dataclass
 class JobState:
@@ -97,7 +70,6 @@ def _background_worker(run_id):
             current_job.status = "running"
             current_job.started_at = datetime.now(timezone.utc).isoformat()
 
-    # Acquire advisory lock using a dedicated connection
     lock_conn = psycopg2.connect(os.environ["DATABASE_URL"])
     lock_conn.autocommit = True
     with lock_conn.cursor() as cur:
@@ -106,7 +78,6 @@ def _background_worker(run_id):
 
     if not lock_acquired:
         msg = "Another ingestion is already running"
-        logger.warning("Advisory lock not acquired for run_id=%s", run_id)
         db.mark_ingestion_run_failed(run_id, msg)
         lock_conn.close()
         with job_lock:
@@ -116,7 +87,6 @@ def _background_worker(run_id):
                 current_job.error = msg
         return
 
-    # Run both ingestion functions
     total_stored = 0
     all_errors = 0
 
@@ -128,7 +98,6 @@ def _background_worker(run_id):
     total_stored += w_result.get("offers_stored", 0)
     all_errors += w_result.get("errors", 0)
 
-    # Release advisory lock
     with lock_conn.cursor() as cur:
         cur.execute("SELECT pg_advisory_unlock(%s)", (ADVISORY_LOCK_KEY,))
     lock_conn.close()
@@ -143,18 +112,12 @@ def _background_worker(run_id):
             current_job.offers_stored = total_stored
             current_job.error = f"{all_errors} error(s) during ingestion" if all_errors else None
 
-    logger.info("Job succeeded: run_id=%s offers_stored=%s errors=%s", run_id, total_stored, all_errors)
-
 
 # ---------------------------------------------------------------------------
 # Application
 # ---------------------------------------------------------------------------
 
 app = FastAPI(title="ingestion-service", version=APP_VERSION)
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 
 
 @app.get("/healthz")
@@ -187,7 +150,6 @@ def trigger_fetch():
         name=f"ingestion-worker-{run_id}",
     )
     thread.start()
-    logger.info("Ingestion job queued: run_id=%s", run_id)
 
     return JSONResponse(status_code=202, content={"run_id": run_id, "status": "queued"})
 
@@ -199,10 +161,6 @@ def fetch_status():
             return {"status": "idle"}
         return current_job.to_dict()
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=INGESTION_PORT)

@@ -1,23 +1,9 @@
-"""
-api-service — PostgreSQL access layer.
-
-Uses a single persistent psycopg2 connection created at import time.
-All queries use parameterised arguments.
-"""
-
-import logging
 import os
 
 import psycopg2
 import psycopg2.extras
 
-logger = logging.getLogger(__name__)
-
 conn = psycopg2.connect(os.environ["DATABASE_URL"])
-
-# ---------------------------------------------------------------------------
-# Store blocklist + name remapping
-# ---------------------------------------------------------------------------
 
 BLOCKED_STORES = (
     "Trixie Together",
@@ -27,10 +13,6 @@ BLOCKED_STORES = (
 STORE_NAME_MAP = {
     "ICA Nära": "ICA Nära Nättran",
 }
-
-# ---------------------------------------------------------------------------
-# Read queries
-# ---------------------------------------------------------------------------
 
 
 def get_current_offers(store=None, page=1, page_size=50):
@@ -138,28 +120,6 @@ def get_stores():
         )
         rows = cur.fetchall()
     return [STORE_NAME_MAP.get(r[0], r[0]) for r in rows if r[0]]
-
-
-def get_last_ingestion_run():
-    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(
-            """
-            SELECT id, status, started_at, completed_at, offers_stored,
-                   error_message, created_at
-            FROM ingestion_runs
-            ORDER BY id DESC
-            LIMIT 1
-            """
-        )
-        row = cur.fetchone()
-    if row is None:
-        return {"status": "no_runs"}
-    return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in row.items()}
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _row_to_dict(row):

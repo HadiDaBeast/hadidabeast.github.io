@@ -1,12 +1,4 @@
-"""
-ingestion-service — Willys (Tjek) offer ingestion.
-
-Ports all logic from fetch_willys.py, adapted to use the PostgreSQL pool
-and structured logging used inside the microservice.
-"""
-
 import json
-import logging
 from datetime import datetime, timezone
 
 import requests
@@ -14,31 +6,13 @@ from requests.exceptions import RequestException
 
 from app import db
 
-logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-
-BUSINESS_PUBLIC_ID = "c371GA"  # Willys Karlskrona dealer ID on Tjek
+BUSINESS_PUBLIC_ID = "c371GA"
 STORE_NAME = "Willys"
-
 PAGE_SIZE = 50
 MAX_PAGES = 100
 
 
-# ---------------------------------------------------------------------------
-# Fetching
-# ---------------------------------------------------------------------------
-
-
 def fetch_page(offset, api_url):
-    """
-    Fetch a single page of offers from the Tjek API.
-
-    Raises requests.RequestException on network errors and RuntimeError on
-    unexpected response shapes — callers should handle these.
-    """
     params = {
         "dealer_id": BUSINESS_PUBLIC_ID,
         "limit": PAGE_SIZE,
@@ -53,8 +27,7 @@ def fetch_page(offset, api_url):
 
     if not response.ok:
         raise RuntimeError(
-            f"Tjek returned HTTP {response.status_code}: "
-            f"{response.text[:1000]}"
+            f"Tjek returned HTTP {response.status_code}: {response.text[:1000]}"
         )
 
     data = response.json()
@@ -67,26 +40,10 @@ def fetch_page(offset, api_url):
             if isinstance(data.get(key), list):
                 return data[key]
 
-    raise RuntimeError(
-        f"Unexpected Tjek response shape: {type(data).__name__}"
-    )
-
-
-# ---------------------------------------------------------------------------
-# Parsing
-# ---------------------------------------------------------------------------
+    raise RuntimeError(f"Unexpected Tjek response shape: {type(data).__name__}")
 
 
 def parse_offer(raw):
-    """
-    Normalise a raw Willys offer object from the Tjek API.
-
-    Applies the same unit-price computation as the generic ingestion
-    module — price / (size_from × SI factor).
-
-    Returns a dict with: name, description, price, unit_price, base_unit,
-    business, valid_from, valid_until.
-    """
     pricing = raw.get("pricing") or {}
     price = pricing.get("price")
 
@@ -97,7 +54,6 @@ def parse_offer(raw):
 
     unit_price = None
     base_unit = None
-
     size_from = size.get("from")
     factor = si.get("factor")
 
@@ -126,63 +82,27 @@ def parse_offer(raw):
     }
 
 
-# ---------------------------------------------------------------------------
-# Main ingestion loop
-# ---------------------------------------------------------------------------
-
-
 def run_willys_ingestion(api_url, run_id):
-    """
-    Paginate through all Willys offers from the Tjek API and store new ones.
-
-    Pages up to MAX_PAGES × PAGE_SIZE offers.  Deduplicates by offer_id
-    AND content_key before inserting via db.insert_offer().
-
-    Returns a dict: {offers_stored: int, errors: int}.
-    """
     fetched_at = datetime.now(timezone.utc).isoformat()
-
-    # Load categories once for the entire run
     categories = db.load_categories()
-    logger.info("Loaded %s categories for Willys run_id=%s", len(categories), run_id)
 
     seen_offer_ids: set = set()
     seen_content_keys: set = set()
 
-    total_received = 0
     total_stored = 0
     errors = 0
 
     for page in range(MAX_PAGES):
         offset = page * PAGE_SIZE
 
-        logger.info(
-            "Fetching Willys page: offset=%s run_id=%s", offset, run_id
-        )
-
         try:
             raw_offers = fetch_page(offset, api_url)
-        except RequestException as exc:
-            logger.error(
-                "Willys request failed at offset=%s run_id=%s: %s",
-                offset, run_id, exc,
-            )
-            errors += 1
-            break
-        except RuntimeError as exc:
-            logger.error(
-                "Willys unexpected response at offset=%s run_id=%s: %s",
-                offset, run_id, exc,
-            )
+        except (RequestException, RuntimeError):
             errors += 1
             break
 
         if not raw_offers:
-            logger.info("No more Willys offers at offset=%s", offset)
             break
-
-        total_received += len(raw_offers)
-        page_stored = 0
 
         for raw in raw_offers:
             dealer = raw.get("dealer") or {}
@@ -229,26 +149,11 @@ def run_willys_ingestion(api_url, run_id):
                     fetched_at,
                     category=category,
                 )
-                page_stored += 1
                 total_stored += 1
-            except Exception as db_exc:  # noqa: BLE001
-                logger.error(
-                    "DB insert failed for Willys offer run_id=%s: %s",
-                    run_id, db_exc,
-                )
+            except Exception:  # noqa: BLE001
                 errors += 1
-
-        logger.info(
-            "Willys page done: offset=%s received=%s new_stored=%s run_id=%s",
-            offset, len(raw_offers), page_stored, run_id,
-        )
 
         if len(raw_offers) < PAGE_SIZE:
             break
 
-    logger.info(
-        "Willys ingestion complete: run_id=%s total_received=%s "
-        "total_stored=%s errors=%s",
-        run_id, total_received, total_stored, errors,
-    )
     return {"offers_stored": total_stored, "errors": errors}

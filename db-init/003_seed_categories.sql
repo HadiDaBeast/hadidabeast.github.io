@@ -1,8 +1,3 @@
--- Seed: initial product categories with keyword lists
--- Keywords are lowercase substrings matched against lowercased product_name.
--- To add more categories or keywords, INSERT or UPDATE rows in this table
--- directly (e.g. via pgAdmin) — no code changes needed.
-
 INSERT INTO product_categories (category, keywords) VALUES
     ('kyckling',     ARRAY['kyckling', 'kycklingbröst', 'kycklinglår', 'kycklingfilé', 'kycklingdelar', 'kycklingfärs', 'kycklingspett', 'kycklinggrillkorv', 'majskyckling']),
     ('nötfärs',      ARRAY['nötfärs', 'högrevsfärs', 'högrevsburgare', 'beef burger', 'hamburgare']),

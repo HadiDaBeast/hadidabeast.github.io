@@ -1,41 +1,9 @@
-"""
-ingestion-service — PostgreSQL access layer.
-
-Uses a single persistent psycopg2 connection created at import time.
-All queries use parameterised arguments.
-"""
-
-import logging
 import os
 
 import psycopg2
 import psycopg2.extras
 
-logger = logging.getLogger(__name__)
-
 conn = psycopg2.connect(os.environ["DATABASE_URL"])
-
-# ---------------------------------------------------------------------------
-# Schema management
-# ---------------------------------------------------------------------------
-
-
-def init_schema():
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS schema_version (
-                version INTEGER PRIMARY KEY,
-                applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
-            )
-            """
-        )
-    conn.commit()
-
-
-# ---------------------------------------------------------------------------
-# Ingestion runs
-# ---------------------------------------------------------------------------
 
 
 def create_ingestion_run():
@@ -83,27 +51,6 @@ def mark_ingestion_run_failed(run_id, error_message):
     conn.commit()
 
 
-def get_last_ingestion_run_status():
-    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(
-            """
-            SELECT id, status, started_at, completed_at, offers_stored, error_message, created_at
-            FROM ingestion_runs
-            ORDER BY id DESC
-            LIMIT 1
-            """
-        )
-        row = cur.fetchone()
-    if row is None:
-        return {"status": "no_runs"}
-    return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in row.items()}
-
-
-# ---------------------------------------------------------------------------
-# Categorization
-# ---------------------------------------------------------------------------
-
-
 def load_categories():
     with conn.cursor() as cur:
         cur.execute(
@@ -122,11 +69,6 @@ def categorize(product_name, categories):
             if kw in name_lower:
                 return category
     return None
-
-
-# ---------------------------------------------------------------------------
-# Offer persistence
-# ---------------------------------------------------------------------------
 
 
 def insert_offer(store_name, parsed, raw_json, fetched_at, category=None):
@@ -157,51 +99,6 @@ def insert_offer(store_name, parsed, raw_json, fetched_at, category=None):
             ),
         )
     conn.commit()
-
-
-# ---------------------------------------------------------------------------
-# Read queries
-# ---------------------------------------------------------------------------
-
-
-def get_current_offers():
-    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(
-            """
-            SELECT id, store_name, product_name, description, price,
-                   unit_price, base_unit, business, valid_from, valid_until, fetched_at
-            FROM price_history
-            WHERE (valid_until IS NULL OR valid_until >= now())
-              AND (valid_from IS NULL OR valid_from <= now())
-            ORDER BY product_name, price
-            """
-        )
-        rows = cur.fetchall()
-    return [_row_to_dict(r) for r in rows]
-
-
-def get_all_offers():
-    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(
-            "SELECT * FROM price_history ORDER BY product_name, valid_from"
-        )
-        rows = cur.fetchall()
-    return [_row_to_dict(r) for r in rows]
-
-
-def get_last_fetch_time():
-    with conn.cursor() as cur:
-        cur.execute("SELECT MAX(fetched_at) FROM price_history")
-        row = cur.fetchone()
-    if row and row[0]:
-        val = row[0]
-        return val.isoformat() if hasattr(val, "isoformat") else str(val)
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _row_to_dict(row):

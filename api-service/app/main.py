@@ -1,18 +1,3 @@
-"""
-api-service — FastAPI application entry point.
-
-Endpoints
----------
-GET  /healthz                          Health check
-GET  /stores                           All distinct store names, sorted
-GET  /products                         Paginated current offers (store filter optional)
-GET  /products/{product_name}/history  Price history for a product
-GET  /categories                       All distinct categories with current offers
-GET  /categories/{category}            Current offers for a category
-GET  /version                          Version info
-"""
-
-import logging
 import os
 from typing import Optional
 from urllib.parse import unquote
@@ -24,31 +9,12 @@ from fastapi.responses import JSONResponse
 
 from app import db
 
-# ---------------------------------------------------------------------------
-# Bootstrap
-# ---------------------------------------------------------------------------
-
 load_dotenv()
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
 API_PORT = int(os.environ.get("API_PORT", "8001"))
 
-logging.basicConfig(
-    level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Application
-# ---------------------------------------------------------------------------
-
 app = FastAPI(title="api-service", version=APP_VERSION)
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 
 
 @app.get("/healthz")
@@ -135,10 +101,6 @@ def product_history(
         )
     return {"product": decoded_name, "entries": entries}
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=API_PORT)

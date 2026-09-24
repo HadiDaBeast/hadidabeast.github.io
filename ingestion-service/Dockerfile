@@ -2,10 +2,11 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY ingestion-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ ./app/
+COPY ingestion-service/app/ ./app/
+COPY db-init/ ./db-init/
 
 EXPOSE 8000
 
