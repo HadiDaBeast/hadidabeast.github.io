@@ -15,11 +15,10 @@ simultaneously.
 import logging
 import os
 import threading
-from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 
+import psycopg2
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -30,7 +29,7 @@ from app.ingestion import run_ingestion
 from app.willys import run_willys_ingestion
 
 # ---------------------------------------------------------------------------
-# Bootstrap — load .env before reading os.environ
+# Bootstrap
 # ---------------------------------------------------------------------------
 
 load_dotenv()
@@ -38,7 +37,6 @@ load_dotenv()
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 APP_VERSION = os.environ.get("APP_VERSION", "dev")
 INGESTION_PORT = int(os.environ.get("INGESTION_PORT", "8000"))
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
 ETILBUDSAVIS_API_URL = os.environ.get(
     "ETILBUDSAVIS_API_URL",
     "https://api.etilbudsavis.dk/v2/offers/search",
@@ -62,13 +60,13 @@ logger = logging.getLogger(__name__)
 @dataclass
 class JobState:
     run_id: int
-    status: str  # queued | running | succeeded | failed
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    offers_stored: Optional[int] = None
-    error: Optional[str] = None
+    status: str
+    started_at = None
+    completed_at = None
+    offers_stored = None
+    error = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self):
         return {
             "run_id": self.run_id,
             "status": self.status,
@@ -79,7 +77,7 @@ class JobState:
         }
 
 
-current_job: Optional[JobState] = None
+current_job = None
 job_lock = threading.Lock()
 
 # ---------------------------------------------------------------------------
@@ -89,20 +87,10 @@ job_lock = threading.Lock()
 ADVISORY_LOCK_KEY = 42
 
 
-def _background_worker(run_id: int) -> None:
-    """
-    Run both ingestion jobs inside a PostgreSQL advisory lock.
-
-    If another replica already holds the lock (pg_try_advisory_lock returns
-    False) the job is marked as failed immediately.
-    """
+def _background_worker(run_id):
     global current_job  # noqa: PLW0603
 
-    # Mark DB row as started
-    try:
-        db.mark_ingestion_run_started(run_id)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Could not mark run started (run_id=%s): %s", run_id, exc)
+    db.mark_ingestion_run_started(run_id)
 
     with job_lock:
         if current_job:
@@ -110,156 +98,72 @@ def _background_worker(run_id: int) -> None:
             current_job.started_at = datetime.now(timezone.utc).isoformat()
 
     # Acquire advisory lock using a dedicated connection
-    lock_conn = None
-    lock_acquired = False
-    try:
-        lock_conn = db._pool.getconn()  # type: ignore[union-attr]
-        lock_conn.autocommit = True
-        with lock_conn.cursor() as cur:
-            cur.execute("SELECT pg_try_advisory_lock(%s)", (ADVISORY_LOCK_KEY,))
-            lock_acquired = cur.fetchone()[0]
+    lock_conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    lock_conn.autocommit = True
+    with lock_conn.cursor() as cur:
+        cur.execute("SELECT pg_try_advisory_lock(%s)", (ADVISORY_LOCK_KEY,))
+        lock_acquired = cur.fetchone()[0]
 
-        if not lock_acquired:
-            msg = "Another ingestion is already running"
-            logger.warning("Advisory lock not acquired for run_id=%s: %s", run_id, msg)
-            _fail_job(run_id, msg)
-            return
-
-        # Run both ingestion functions
-        total_stored = 0
-        all_errors = 0
-
-        try:
-            result = run_ingestion(db._pool, ETILBUDSAVIS_API_URL, run_id)
-            total_stored += result.get("offers_stored", 0)
-            all_errors += result.get("errors", 0)
-        except Exception as exc:  # noqa: BLE001
-            logger.error("run_ingestion raised for run_id=%s: %s", run_id, exc)
-            all_errors += 1
-
-        try:
-            w_result = run_willys_ingestion(db._pool, WILLYS_API_URL, run_id)
-            total_stored += w_result.get("offers_stored", 0)
-            all_errors += w_result.get("errors", 0)
-        except Exception as exc:  # noqa: BLE001
-            logger.error("run_willys_ingestion raised for run_id=%s: %s", run_id, exc)
-            all_errors += 1
-
-        completed_at = datetime.now(timezone.utc).isoformat()
-        try:
-            db.mark_ingestion_run_succeeded(run_id, total_stored)
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Could not mark run succeeded (run_id=%s): %s", run_id, exc)
-
+    if not lock_acquired:
+        msg = "Another ingestion is already running"
+        logger.warning("Advisory lock not acquired for run_id=%s", run_id)
+        db.mark_ingestion_run_failed(run_id, msg)
+        lock_conn.close()
         with job_lock:
             if current_job and current_job.run_id == run_id:
-                current_job.status = "succeeded"
-                current_job.completed_at = completed_at
-                current_job.offers_stored = total_stored
-                current_job.error = (
-                    f"{all_errors} error(s) during ingestion" if all_errors else None
-                )
+                current_job.status = "failed"
+                current_job.completed_at = datetime.now(timezone.utc).isoformat()
+                current_job.error = msg
+        return
 
-        logger.info(
-            "Job succeeded: run_id=%s offers_stored=%s errors=%s",
-            run_id, total_stored, all_errors,
-        )
+    # Run both ingestion functions
+    total_stored = 0
+    all_errors = 0
 
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Unhandled error in background worker (run_id=%s): %s", run_id, exc)
-        _fail_job(run_id, str(exc))
+    result = run_ingestion(ETILBUDSAVIS_API_URL, run_id)
+    total_stored += result.get("offers_stored", 0)
+    all_errors += result.get("errors", 0)
 
-    finally:
-        # Always release the advisory lock and return the connection
-        if lock_conn is not None:
-            try:
-                if lock_acquired:
-                    with lock_conn.cursor() as cur:
-                        cur.execute(
-                            "SELECT pg_advisory_unlock(%s)", (ADVISORY_LOCK_KEY,)
-                        )
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("Could not release advisory lock: %s", exc)
-            try:
-                db._pool.putconn(lock_conn)  # type: ignore[union-attr]
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("Could not return lock conn to pool: %s", exc)
+    w_result = run_willys_ingestion(WILLYS_API_URL, run_id)
+    total_stored += w_result.get("offers_stored", 0)
+    all_errors += w_result.get("errors", 0)
 
+    # Release advisory lock
+    with lock_conn.cursor() as cur:
+        cur.execute("SELECT pg_advisory_unlock(%s)", (ADVISORY_LOCK_KEY,))
+    lock_conn.close()
 
-def _fail_job(run_id: int, message: str) -> None:
-    """Mark a job as failed both in memory and in the database."""
-    global current_job  # noqa: PLW0603
     completed_at = datetime.now(timezone.utc).isoformat()
-    try:
-        db.mark_ingestion_run_failed(run_id, message)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Could not mark run failed (run_id=%s): %s", run_id, exc)
+    db.mark_ingestion_run_succeeded(run_id, total_stored)
 
     with job_lock:
         if current_job and current_job.run_id == run_id:
-            current_job.status = "failed"
+            current_job.status = "succeeded"
             current_job.completed_at = completed_at
-            current_job.error = message
+            current_job.offers_stored = total_stored
+            current_job.error = f"{all_errors} error(s) during ingestion" if all_errors else None
 
-
-# ---------------------------------------------------------------------------
-# FastAPI lifespan
-# ---------------------------------------------------------------------------
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Initialise DB pool on startup; close it on shutdown."""
-    if not DATABASE_URL:
-        logger.warning("DATABASE_URL is not set — DB features will be unavailable")
-    else:
-        try:
-            db.init_pool(DATABASE_URL, retry_timeout=30)
-            db.init_schema()
-            logger.info("Schema initialised successfully")
-        except Exception as exc:  # noqa: BLE001
-            logger.error("DB startup failed: %s", exc)
-            raise
-
-    yield
-
-    # Shutdown: close the connection pool
-    if db._pool is not None:
-        try:
-            db._pool.closeall()
-            logger.info("DB pool closed")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Error closing DB pool: %s", exc)
+    logger.info("Job succeeded: run_id=%s offers_stored=%s errors=%s", run_id, total_stored, all_errors)
 
 
 # ---------------------------------------------------------------------------
 # Application
 # ---------------------------------------------------------------------------
 
-app = FastAPI(
-    title="ingestion-service",
-    version=APP_VERSION,
-    lifespan=lifespan,
-)
-
+app = FastAPI(title="ingestion-service", version=APP_VERSION)
 
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
 
 
-@app.get("/healthz", status_code=200)
+@app.get("/healthz")
 def healthz():
     return {"status": "ok", "version": APP_VERSION}
 
 
 @app.post("/fetch", status_code=202)
 def trigger_fetch():
-    """
-    Trigger a new ingestion run.
-
-    Returns 202 if queued successfully, 409 if another job is running.
-    """
     global current_job  # noqa: PLW0603
 
     with job_lock:
@@ -273,19 +177,9 @@ def trigger_fetch():
                 },
             )
 
-        # Create DB row first so we have an ID
-        try:
-            run_id = db.create_ingestion_run()
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Could not create ingestion run: %s", exc)
-            return JSONResponse(
-                status_code=503,
-                content={"error": "Database unavailable"},
-            )
-
+        run_id = db.create_ingestion_run()
         current_job = JobState(run_id=run_id, status="queued")
 
-    # Start background thread outside the lock
     thread = threading.Thread(
         target=_background_worker,
         args=(run_id,),
@@ -295,15 +189,11 @@ def trigger_fetch():
     thread.start()
     logger.info("Ingestion job queued: run_id=%s", run_id)
 
-    return JSONResponse(
-        status_code=202,
-        content={"run_id": run_id, "status": "queued"},
-    )
+    return JSONResponse(status_code=202, content={"run_id": run_id, "status": "queued"})
 
 
 @app.get("/fetch/status")
 def fetch_status():
-    """Return the current job state, or {status: 'idle'} if none."""
     with job_lock:
         if current_job is None:
             return {"status": "idle"}

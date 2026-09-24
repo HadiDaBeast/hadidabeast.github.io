@@ -32,7 +32,7 @@ MAX_PAGES = 100
 # ---------------------------------------------------------------------------
 
 
-def fetch_page(offset: int, api_url: str) -> list:
+def fetch_page(offset, api_url):
     """
     Fetch a single page of offers from the Tjek API.
 
@@ -77,7 +77,7 @@ def fetch_page(offset: int, api_url: str) -> list:
 # ---------------------------------------------------------------------------
 
 
-def parse_offer(raw: dict) -> dict:
+def parse_offer(raw):
     """
     Normalise a raw Willys offer object from the Tjek API.
 
@@ -131,7 +131,7 @@ def parse_offer(raw: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
+def run_willys_ingestion(api_url, run_id):
     """
     Paginate through all Willys offers from the Tjek API and store new ones.
 
@@ -141,6 +141,10 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
     Returns a dict: {offers_stored: int, errors: int}.
     """
     fetched_at = datetime.now(timezone.utc).isoformat()
+
+    # Load categories once for the entire run
+    categories = db.load_categories()
+    logger.info("Loaded %s categories for Willys run_id=%s", len(categories), run_id)
 
     seen_offer_ids: set = set()
     seen_content_keys: set = set()
@@ -164,7 +168,7 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
                 offset, run_id, exc,
             )
             errors += 1
-            break  # can't continue pagination without knowing offset state
+            break
         except RuntimeError as exc:
             logger.error(
                 "Willys unexpected response at offset=%s run_id=%s: %s",
@@ -181,7 +185,6 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
         page_stored = 0
 
         for raw in raw_offers:
-            # Verify this offer belongs to the Willys business
             dealer = raw.get("dealer") or {}
             branding = raw.get("branding") or {}
             business_id = (
@@ -195,7 +198,6 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
 
             parsed = parse_offer(raw)
 
-            # Skip offers attributed to a different brand name
             if parsed["business"] and parsed["business"].lower() != "willys":
                 continue
 
@@ -217,12 +219,15 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
                 seen_offer_ids.add(offer_id)
             seen_content_keys.add(content_key)
 
+            category = db.categorize(parsed.get("name"), categories)
+
             try:
                 db.insert_offer(
                     STORE_NAME,
                     parsed,
                     json.dumps(raw, ensure_ascii=False),
                     fetched_at,
+                    category=category,
                 )
                 page_stored += 1
                 total_stored += 1
@@ -239,7 +244,7 @@ def run_willys_ingestion(db_pool, api_url: str, run_id: int) -> dict:
         )
 
         if len(raw_offers) < PAGE_SIZE:
-            break  # last page
+            break
 
     logger.info(
         "Willys ingestion complete: run_id=%s total_received=%s "

@@ -1,21 +1,11 @@
 FROM python:3.12-slim
 
-# Non-root user
-RUN groupadd --gid 1001 appgroup && \
-    useradd --uid 1001 --gid appgroup --no-create-home appuser
-
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
-
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"
-
-USER appuser
 
 EXPOSE 8000
 

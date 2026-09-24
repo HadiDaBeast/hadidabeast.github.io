@@ -1,0 +1,594 @@
+# Prispulsen — full Kubernetes deployment
+# Apply with: kubectl apply -f k8s/prispulsen.yaml
+#
+# Resources (in order):
+#   1. Namespace
+#   2. ConfigMap + Secret
+#   3. PostgreSQL (StatefulSet + Service)
+#   4. ingestion-service (Deployment + Service + HPA)
+#   5. api-service (Deployment + Service + HPA)
+#   6. frontend (Deployment + Service + HPA)
+#   7. pgAdmin (Deployment + Service)
+#   8. Ingress
+
+# ===========================================================================
+# 1. Namespace
+# ===========================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prispulsen
+  labels:
+    app.kubernetes.io/name: prispulsen
+
+---
+# ===========================================================================
+# 2. ConfigMap
+# ===========================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prispulsen-config
+  namespace: prispulsen
+data:
+  POSTGRES_DB: prispulsen
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  TJEK_API_URL: https://api.etilbudsavis.dk/v2
+  LOG_LEVEL: INFO
+  INGESTION_PORT: "8000"
+  API_PORT: "8001"
+  NGINX_PORT: "8080"
+  API_SERVICE_URL: prispulsen-api:8001
+
+---
+# ===========================================================================
+# 2. Secret
+# ===========================================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prispulsen-secrets
+  namespace: prispulsen
+type: Opaque
+stringData:
+  POSTGRES_USER: prispulsen
+  POSTGRES_PASSWORD: mysecretpassword
+  DATABASE_URL: postgresql://prispulsen:mysecretpassword@postgres:5432/prispulsen
+
+---
+# ===========================================================================
+# 3. PostgreSQL — StatefulSet
+# ===========================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: prispulsen
+  labels:
+    app: postgres
+    component: database
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+
+---
+# ===========================================================================
+# 3. PostgreSQL — Service
+# ===========================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: prispulsen
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+
+---
+# ===========================================================================
+# 4. ingestion-service — Deployment
+# ===========================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prispulsen-ingestion
+  namespace: prispulsen
+  labels:
+    app: prispulsen-ingestion
+    component: ingestion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prispulsen-ingestion
+  template:
+    metadata:
+      labels:
+        app: prispulsen-ingestion
+        component: ingestion
+    spec:
+      containers:
+        - name: ingestion
+          image: hadidabeast/prispulsen-ingestion:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: DATABASE_URL
+            - name: TJEK_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: TJEK_API_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: LOG_LEVEL
+            - name: APP_VERSION
+              value: latest
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+---
+# ===========================================================================
+# 4. ingestion-service — Service
+# ===========================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-ingestion
+  namespace: prispulsen
+  labels:
+    app: prispulsen-ingestion
+spec:
+  type: ClusterIP
+  selector:
+    app: prispulsen-ingestion
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+
+---
+# ===========================================================================
+# 4. ingestion-service — HPA
+# ===========================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: prispulsen-ingestion-hpa
+  namespace: prispulsen
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prispulsen-ingestion
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# ===========================================================================
+# 5. api-service — Deployment
+# ===========================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prispulsen-api
+  namespace: prispulsen
+  labels:
+    app: prispulsen-api
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prispulsen-api
+  template:
+    metadata:
+      labels:
+        app: prispulsen-api
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: hadidabeast/prispulsen-api:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: LOG_LEVEL
+            - name: APP_VERSION
+              value: latest
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+---
+# ===========================================================================
+# 5. api-service — Service
+# ===========================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-api
+  namespace: prispulsen
+  labels:
+    app: prispulsen-api
+spec:
+  type: ClusterIP
+  selector:
+    app: prispulsen-api
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+
+---
+# ===========================================================================
+# 5. api-service — HPA
+# ===========================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: prispulsen-api-hpa
+  namespace: prispulsen
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prispulsen-api
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+
+---
+# ===========================================================================
+# 6. frontend — Deployment
+# ===========================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prispulsen-frontend
+  namespace: prispulsen
+  labels:
+    app: prispulsen-frontend
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prispulsen-frontend
+  template:
+    metadata:
+      labels:
+        app: prispulsen-frontend
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: hadidabeast/prispulsen-frontend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: API_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: API_SERVICE_URL
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "10m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+
+---
+# ===========================================================================
+# 6. frontend — Service
+# ===========================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-frontend
+  namespace: prispulsen
+  labels:
+    app: prispulsen-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: prispulsen-frontend
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+
+---
+# ===========================================================================
+# 6. frontend — HPA
+# ===========================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: prispulsen-frontend-hpa
+  namespace: prispulsen
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prispulsen-frontend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+# ===========================================================================
+# 7. pgAdmin — Deployment
+# ===========================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: prispulsen
+  labels:
+    app: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:8
+          ports:
+            - containerPort: 80
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: admin@prispulsen.nu
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: admin
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+# ===========================================================================
+# 7. pgAdmin — Service
+# ===========================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: prispulsen
+spec:
+  type: ClusterIP
+  selector:
+    app: pgadmin
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+# ===========================================================================
+# 8. Ingress
+# ===========================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prispulsen-ingress
+  namespace: prispulsen
+  labels:
+    app: prispulsen
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: prispulsen.nu
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: prispulsen-api
+                port:
+                  number: 8001
+          - path: /pgadmin(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 80
+          - path: /()(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: prispulsen-frontend
+                port:
+                  number: 8080
+    # Local development fallback (NodePort access)
+    - http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: prispulsen-api
+                port:
+                  number: 8001
+          - path: /pgadmin(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 80
+          - path: /()(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: prispulsen-frontend
+                port:
+                  number: 8080

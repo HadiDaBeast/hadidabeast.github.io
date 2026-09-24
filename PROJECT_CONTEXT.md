@@ -62,7 +62,7 @@ All resources in the `prispulsen` Kubernetes namespace.
 
 **Key constraint:** `UNIQUE (store_name, product_name, price, valid_from, valid_until)` + `ON CONFLICT DO NOTHING` — ingestion is fully idempotent.
 
-Migrations: `migrations/NNN_description.sql`, runner: `migrations/run_migrations.py`
+Migrations: `db-init/NNN_description.sql`, runner: `db-init/run_migrations.py`
 
 ---
 
@@ -99,7 +99,7 @@ Migrations: `migrations/NNN_description.sql`, runner: `migrations/run_migrations
 |---|---|---|
 | Database | PostgreSQL (was SQLite) | Multi-pod shared state, JSONB, concurrent connections |
 | Web framework | FastAPI (was Flask) | Auto OpenAPI docs, Pydantic validation, async support |
-| DB migrations | Plain versioned SQL (no Alembic) | Schema changes are rare; raw SQL is simpler |
+| DB initialisation | Plain versioned SQL (no Alembic) | Schema changes are rare; raw SQL is simpler |
 | Concurrency lock | PostgreSQL advisory lock | Prevents duplicate ingestion without a distributed queue |
 | Service split | 3 services (Willys lives in ingestion-service) | Splitting would duplicate boilerplate for no boundary benefit |
 | Container registry | Docker Hub (`hadidabeast/`) | Cost — personal/hobbyist project |
@@ -110,42 +110,33 @@ Migrations: `migrations/NNN_description.sql`, runner: `migrations/run_migrations
 ## Known Issues / TODOs
 
 - `secret.yaml` contains placeholder credentials — must be replaced with real values before any real deployment.
-
----
-
-## Legacy Files (root directory, not containerized)
-
-- `app.py` — original Flask app
-- `fetch_prices.py`, `fetch_willys.py` — original standalone scripts
-- `db.py` — SQLite data layer
-- `export.py` — JSON export for static site
-- `index.html`, `style.css` — original GitHub Pages frontend
-- `prispulsen.db` — SQLite database (~1MB)
-- `public/data/` — pre-generated static JSON (current.json, products.json, ~130 per-product history files)
-- `weekly-update.yml` — original GitHub Actions schedule workflow
-- `prispulsen-k8s-plan (1).md` — detailed migration planning document
+- **[ ] Re-enable weekly CronJob** — `k8s/ingestion-cronjob.yaml` was removed; ingestion is currently triggered manually via `POST /fetch`. Re-add the CronJob (every Monday 06:00 UTC) when running on an always-on cluster.
+- **[ ] Deploy to Raspberry Pi (Rock Pi 4 SE 4GB)** — install k3s, rebuild images as multi-arch (`linux/amd64` + `linux/arm64`), port-forward 80/443 on home router, set up dynamic DNS for `prispulsen.nu`. Current images are `amd64` only and will not run on ARM64 without a rebuild. Update `docker-publish.yml` to use `docker buildx` with `--platform linux/amd64,linux/arm64`.
 
 ---
 
 ## Local Development
 
 ```bash
-# Deploy to minikube/kind
-chmod +x scripts/*.sh
-scripts/deploy-local.sh
+# Deploy everything
+kubectl apply -f k8s/prispulsen.yaml
 
-# Build Docker images
-scripts/build-images.sh
+# Access the app
+kubectl port-forward svc/prispulsen-frontend 8080:8080 -n prispulsen
+# Open http://localhost:8080
 
-# Push to Docker Hub
-scripts/push-images.sh
+# pgAdmin (DB browser)
+kubectl port-forward svc/pgadmin 8081:80 -n prispulsen
+# Open http://localhost:8081
 
-# Teardown
-scripts/teardown.sh
+# Trigger ingestion manually
+kubectl exec -n prispulsen deploy/prispulsen-ingestion -- curl -X POST localhost:8000/fetch
 
-# Manually trigger ingestion
-kubectl create job --from=cronjob/prispulsen-weekly-fetch manual-fetch -n prispulsen
+# Wipe everything
+kubectl delete namespace prispulsen --ignore-not-found
 ```
+
+See `docs/runbook.md` for full commands including building and pushing images.
 
 ### Accessing the app locally (WSL + minikube)
 
@@ -204,8 +195,7 @@ netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=80
 │   ├── nginx.conf
 │   └── Dockerfile
 ├── k8s/                     # All Kubernetes manifests
-├── migrations/              # SQL migration files + runner
-├── scripts/                 # deploy-local.sh, build/push/teardown
+├── db-init/                 # SQL schema files + runner (run once on fresh DB)
 ├── docs/                    # decisions.md, runbook.md, scaling.md, etc.
-└── .github/workflows/       # ci.yml, docker-publish.yml
+└── .github/workflows/       # docker-publish.yml
 ```

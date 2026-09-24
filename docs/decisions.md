@@ -119,7 +119,7 @@ this project.
 
 ---
 
-## D07 — DB Migrations
+## D07 — DB Initialisation
 
 **Decision:** Plain versioned SQL files, no Alembic  
 **Date:** 2026-09-22  
@@ -130,14 +130,14 @@ of raw SQL. For a schema that will change rarely, the overhead is not
 justified. Plain `.sql` files are readable by anyone, runnable with `psql`,
 and simple to version in git.
 
-**Format:** `migrations/NNN_description.sql` where NNN is a zero-padded
+**Format:** `db-init/NNN_description.sql` where NNN is a zero-padded
 integer (e.g. `001_initial_schema.sql`).  
-**Runner:** `migrations/run_migrations.py` tracks applied versions in the
+**Runner:** `db-init/run_migrations.py` tracks applied versions in the
 `schema_version` table and skips already-applied files.
 
 **Consequences:**
-- Schema changes require a new numbered `.sql` file.
-- The migration runner must be executed before deploying new code that depends
+- Schema changes require a new numbered `.sql` file in `db-init/`.
+- The runner must be executed before deploying new code that depends
   on schema changes (typically as a Kubernetes Job or init container).
 
 ---

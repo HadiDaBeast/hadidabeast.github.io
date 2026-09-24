@@ -18,104 +18,92 @@ Complete setup from a fresh clone to a running cluster.
 - `metrics-server` installed in the cluster (required for HPA)
 - Docker Hub credentials (for pushing images)
 
-### Steps
+### Build Docker images
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/taylorbourne/Prispulsen.git
-cd Prispulsen
-
-# 2. Build and push all three images to Docker Hub
-#    (Set DOCKER_USER and IMAGE_TAG in scripts/build-images.sh as needed)
-chmod +x scripts/build-images.sh scripts/push-images.sh
-./scripts/build-images.sh
-./scripts/push-images.sh
-
-# 3. Create the namespace (idempotent)
-kubectl apply -f k8s/namespace.yaml
-
-# 4. Apply all manifests in the correct order
-#    (secrets and configmap first, then workloads)
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secret.yaml
-kubectl apply -f k8s/postgres-statefulset.yaml
-kubectl apply -f k8s/postgres-service.yaml
-
-# 5. Wait for postgres to be Ready before running migrations
-kubectl wait pod/postgres-0 \
-  --for=condition=Ready \
-  -n prispulsen \
-  --timeout=120s
-
-# 6. Run database migrations (creates tables, indexes, etc.)
-#    Replace <POSTGRES_PASSWORD> with the value from k8s/secret.yaml
-kubectl run migration-runner \
-  --image=python:3.12-slim \
-  --rm -it \
-  --restart=Never \
-  -n prispulsen \
-  --env="DATABASE_URL=postgresql://prispulsen:<POSTGRES_PASSWORD>@postgres:5432/prispulsen" \
-  --overrides='{"spec":{"volumes":[{"name":"migrations","configMap":{"name":"prispulsen-migrations"}}],"containers":[{"name":"migration-runner","image":"python:3.12-slim","command":["python","/migrations/run_migrations.py"],"volumeMounts":[{"name":"migrations","mountPath":"/migrations"}]}]}}' \
-  -- echo "Migrations done"
-
-# Alternatively, exec into postgres pod and apply SQL directly:
-kubectl exec -i postgres-0 -n prispulsen -- \
-  psql -U prispulsen prispulsen \
-  < migrations/001_initial_schema.sql
-
-# 7. Deploy the application services
-kubectl apply -f k8s/ingestion-deployment.yaml
-kubectl apply -f k8s/ingestion-service.yaml
-kubectl apply -f k8s/api-deployment.yaml
-kubectl apply -f k8s/api-service.yaml
-kubectl apply -f k8s/frontend-deployment.yaml
-kubectl apply -f k8s/frontend-service.yaml
-
-# 8. Deploy CronJob and HPAs
-kubectl apply -f k8s/ingestion-cronjob.yaml
-kubectl apply -f k8s/ingestion-hpa.yaml
-kubectl apply -f k8s/api-hpa.yaml
-kubectl apply -f k8s/frontend-hpa.yaml
-
-# 9. Deploy Ingress (requires ingress-nginx to be installed)
-kubectl apply -f k8s/ingress.yaml
-
-# 10. Verify everything is running
-kubectl get all -n prispulsen
+docker build -t hadidabeast/prispulsen-ingestion:latest ./ingestion-service
+docker build -t hadidabeast/prispulsen-api:latest ./api-service
+docker build -t hadidabeast/prispulsen-frontend:latest ./frontend
 ```
 
-Or use the helper script which wraps steps 3–9:
+### Push images to Docker Hub
 
 ```bash
-./scripts/deploy-local.sh
+docker login
+docker push hadidabeast/prispulsen-ingestion:latest
+docker push hadidabeast/prispulsen-api:latest
+docker push hadidabeast/prispulsen-frontend:latest
+```
+
+### Deploy to Kubernetes
+
+```bash
+# Deploy everything in one command
+kubectl apply -f k8s/prispulsen.yaml
+
+# Wait for PostgreSQL to be ready, then run db-init
+kubectl rollout status statefulset/postgres -n prispulsen --timeout=120s
+kubectl run db-init --image=hadidabeast/prispulsen-ingestion:latest \
+  --restart=Never --namespace=prispulsen \
+  --env="DATABASE_URL=$(kubectl get secret prispulsen-secrets -n prispulsen -o jsonpath='{.data.DATABASE_URL}' | base64 -d)" \
+  --command -- python /app/db-init/run_migrations.py
+
+# Wait for all deployments
+kubectl rollout status deployment/prispulsen-ingestion -n prispulsen --timeout=120s
+kubectl rollout status deployment/prispulsen-api -n prispulsen --timeout=120s
+kubectl rollout status deployment/prispulsen-frontend -n prispulsen --timeout=120s
+```
+
+### Access the app locally
+
+```bash
+# Frontend
+kubectl port-forward svc/prispulsen-frontend 8080:8080 -n prispulsen
+
+# pgAdmin (browser DB viewer)
+kubectl port-forward svc/pgadmin 8081:80 -n prispulsen
+```
+
+Then open `http://localhost:8080` in your browser.
+
+### Trigger ingestion manually
+
+```bash
+kubectl exec -n prispulsen deploy/prispulsen-ingestion -- curl -X POST localhost:8000/fetch
+```
+
+### Wipe everything (start fresh)
+
+```bash
+kubectl delete namespace prispulsen --ignore-not-found
 ```
 
 ---
 
-## 2. Running Migrations
+## 2. Running DB Init / Schema Updates
 
-When a new SQL migration file is added (e.g., `migrations/002_add_index.sql`):
+When a new SQL file is added (e.g., `db-init/003_add_index.sql`):
 
 ```bash
-# Apply the migration against the running postgres pod
+# Apply directly against the running postgres pod
 kubectl exec -i postgres-0 -n prispulsen -- \
   psql -U prispulsen prispulsen \
-  < migrations/002_add_index.sql
+  < db-init/003_add_index.sql
 ```
 
-Using the Python migration runner (handles versioning automatically):
+Using the Python runner (handles versioning automatically):
 
 ```bash
 # Forward the postgres port locally, then run the runner
 kubectl port-forward pod/postgres-0 5432:5432 -n prispulsen &
 
 DATABASE_URL="postgresql://prispulsen:<PASSWORD>@localhost:5432/prispulsen" \
-  python3 migrations/run_migrations.py
+  python3 db-init/run_migrations.py
 
 kill %1   # Stop the port-forward
 ```
 
-The runner records applied migrations in the `schema_version` table and skips
+The runner records applied versions in the `schema_version` table and skips
 files that have already been applied — it is safe to run repeatedly.
 
 ---

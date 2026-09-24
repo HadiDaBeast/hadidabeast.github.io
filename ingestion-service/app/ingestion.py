@@ -49,7 +49,7 @@ MAX_WORKERS = 5
 # ---------------------------------------------------------------------------
 
 
-def fetch_offers(lat: float, lng: float, query: str, api_url: str) -> list:
+def fetch_offers(lat, lng, query, api_url):
     """
     Call the Etilbudsavis search endpoint and return the raw list of offers.
 
@@ -77,7 +77,7 @@ def fetch_offers(lat: float, lng: float, query: str, api_url: str) -> list:
 # ---------------------------------------------------------------------------
 
 
-def parse_offer(raw: dict) -> dict:
+def parse_offer(raw):
     """
     Normalise a raw offer object from the Etilbudsavis API.
 
@@ -140,7 +140,7 @@ def parse_offer(raw: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def run_ingestion(db_pool, api_url: str, run_id: int) -> dict:
+def run_ingestion(api_url, run_id):
     """
     Fetch offers for all stores × all queries with a thread pool.
 
@@ -150,6 +150,10 @@ def run_ingestion(db_pool, api_url: str, run_id: int) -> dict:
     Returns a dict: {offers_stored: int, errors: int}.
     """
     fetched_at = datetime.now(timezone.utc).isoformat()
+
+    # Load categories once for the entire run
+    categories = db.load_categories()
+    logger.info("Loaded %s categories for run_id=%s", len(categories), run_id)
 
     seen_offer_ids: set = set()
     seen_content_keys: set = set()
@@ -164,7 +168,7 @@ def run_ingestion(db_pool, api_url: str, run_id: int) -> dict:
         for query in QUERIES
     ]
 
-    def run_task(store_name: str, lat: float, lng: float, query: str) -> int:
+    def run_task(store_name, lat, lng, query):
         """Returns number of new offers stored for this task; 0 on error."""
         nonlocal errors
         try:
@@ -202,12 +206,15 @@ def run_ingestion(db_pool, api_url: str, run_id: int) -> dict:
                     seen_offer_ids.add(offer_id)
                 seen_content_keys.add(content_key)
 
+                category = db.categorize(parsed.get("name"), categories)
+
                 try:
                     db.insert_offer(
                         actual_store,
                         parsed,
                         json.dumps(raw, ensure_ascii=False),
                         fetched_at,
+                        category=category,
                     )
                     stored_this_task += 1
                 except Exception as db_exc:  # noqa: BLE001
