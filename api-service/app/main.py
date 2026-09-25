@@ -42,6 +42,8 @@ def api_stores():
 @app.get("/products")
 def products(store=None, page=1, page_size=50):
     store_filter = store.strip() if store else None
+    page = int(page or 1)
+    page_size = int(page_size or 50)
     items_raw, total = db.get_current_offers(store=store_filter, page=page, page_size=page_size)
     items = [
         {
