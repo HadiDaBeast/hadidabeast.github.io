@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Prispulsen: jämför aktuella matpriser i Karlskrona.">
+    <title>Prispulsen — Karlskrona</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .card-enter { animation: fadeUp 0.3s ease both; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #16a34a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .scrollbar-hide { scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-brand-600 text-white rounded-lg w-9 h-9 flex items-center justify-center font-bold text-lg">P</div>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-900 leading-tight">Prispulsen</h1>
+                        <p class="text-xs text-gray-500 leading-tight">Karlskrona · matpriser</p>
+                    </div>
+                </div>
+                <div id="last-updated" class="flex items-center gap-2 text-sm text-gray-500">
+                    <span class="inline-block w-2 h-2 rounded-full bg-gray-300 animate-pulse"></span>
+                    Laddar...
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div id="stats" class="grid grid-cols-3 gap-4 mb-8"></div>
+
+        <div class="mb-6 -mx-4 sm:mx-0">
+            <div id="category-pills" class="flex gap-2 overflow-x-auto px-4 sm:px-0 pb-2 scrollbar-hide">
+                <button
+                    data-category=""
+                    class="category-pill flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 bg-brand-600 text-white"
+                >Alla</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input
+                        id="search"
+                        type="search"
+                        placeholder="Sök produkt eller butik..."
+                        autocomplete="off"
+                        class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-gray-50"
+                    >
+                </div>
+                <select id="store-filter" aria-label="Välj butik"
+                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 text-gray-700">
+                    <option value="">Alla butiker</option>
+                </select>
+                <select id="sort" aria-label="Sortera"
+                    class="px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 text-gray-700">
+                    <option value="name">Produkt A–Ö</option>
+                    <option value="price">Pris: lägst först</option>
+                    <option value="unit">Jämförpris: lägst först</option>
+                    <option value="store">Butik A–Ö</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-5">
+            <h2 id="result-title" class="text-lg font-semibold text-gray-900">Alla aktuella erbjudanden</h2>
+            <span id="result-count" class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full"></span>
+        </div>
+
+        <div id="offers" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div class="col-span-full flex flex-col items-center justify-center py-24 gap-4 text-gray-400">
+                <div class="spinner"></div>
+                <p class="text-sm">Laddar erbjudanden...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-gray-200 mt-16 py-8 text-center text-sm text-gray-400">
+        Prispulsen · Priser uppdateras varje vecka · Karlskrona
+    </footer>
+
+    <script src="app.js" defer></script>
+
+</body>
+</html>

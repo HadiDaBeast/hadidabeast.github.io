@@ -1,0 +1,216 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prispulsen
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prispulsen-config
+  namespace: prispulsen
+data:
+  POSTGRES_DB: prispulsen
+  TJEK_API_URL: https://api.etilbudsavis.dk/v2
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prispulsen-secrets
+  namespace: prispulsen
+stringData:
+  POSTGRES_USER: prispulsen
+  POSTGRES_PASSWORD: mysecretpassword
+  DATABASE_URL: postgresql://prispulsen:mysecretpassword@postgres:5432/prispulsen
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: prispulsen
+spec:
+  serviceName: postgres
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: prispulsen
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  namespace: prispulsen
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: hadidabeast/prispulsen-ingestion:latest
+          command: ["python", "/app/db-init/run_migrations.py"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: DATABASE_URL
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prispulsen-ingestion
+  namespace: prispulsen
+spec:
+  selector:
+    matchLabels:
+      app: prispulsen-ingestion
+  template:
+    metadata:
+      labels:
+        app: prispulsen-ingestion
+    spec:
+      containers:
+        - name: ingestion
+          image: hadidabeast/prispulsen-ingestion:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: DATABASE_URL
+            - name: TJEK_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: prispulsen-config
+                  key: TJEK_API_URL
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-ingestion
+  namespace: prispulsen
+spec:
+  selector:
+    app: prispulsen-ingestion
+  ports:
+    - port: 8000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prispulsen-api
+  namespace: prispulsen
+spec:
+  selector:
+    matchLabels:
+      app: prispulsen-api
+  template:
+    metadata:
+      labels:
+        app: prispulsen-api
+    spec:
+      containers:
+        - name: api
+          image: hadidabeast/prispulsen-api:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prispulsen-secrets
+                  key: DATABASE_URL
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prispulsen-api
+  namespace: prispulsen
+spec:
+  selector:
+    app: prispulsen-api
+  ports:
+    - port: 8001
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prispulsen-ingress
+  namespace: prispulsen
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prispulsen-api
+                port:
+                  number: 8001
